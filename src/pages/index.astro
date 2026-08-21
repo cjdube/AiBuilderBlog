@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = (
+  await getCollection('blog', ({ data }) =>
+    import.meta.env.PROD ? !data.draft : true,
+  )
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC',
+  });
+---
+
+<BaseLayout
+  title="A Builder's Odyssey — Craig Dubé"
+  description="Notes from building local AI agents on one Mac mini: what works, what it costs, and what it measured."
+>
+  <div class="wrap">
+    <header class="masthead">
+      <p class="eyebrow">Craig Dubé</p>
+      <h1>A Builder&rsquo;s Odyssey</h1>
+      <p class="standfirst">
+        Notes from building local AI agents on one Mac mini. What I built, the
+        trade-offs I made, and what the numbers actually said.
+      </p>
+      <hr class="rule" />
+    </header>
+
+    <section class="col">
+      <ul class="postlist">
+        {posts.map((post) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>
+              <span class="date">{fmt(post.data.pubDate)}</span>
+              <h2>{[post.data.title, post.data.subtitle].filter(Boolean).join(' ')}</h2>
+              <span class="dek">{post.data.standfirst}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

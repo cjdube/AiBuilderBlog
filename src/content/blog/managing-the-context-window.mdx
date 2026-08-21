@@ -1,0 +1,143 @@
+---
+title: 'Challenges of a Small Model:'
+subtitle: Managing the Context Window
+standfirst: My nightly wiki job kept warning me it was almost out of context. Doubling the window made the warnings stop, which turned out to be the least interesting thing I could have done about it.
+pubDate: 2026-08-20
+tags: ['ollama', 'agents', 'context-window', 'local-llm']
+colophon:
+  - 'Measured on one Mac mini, Apple M4 Pro, 48 GB unified memory, running gemma4:26b-mlx via Ollama.'
+  - "Token counts are Ollama's own prompt_eval_count, logged once per turn."
+  - 'Code: <a href="https://github.com/cjdube/ObsidianWikiAgent">github.com/cjdube/ObsidianWikiAgent</a>'
+---
+
+import Stats from '../../components/Stats.astro';
+import Callout from '../../components/Callout.astro';
+import WhyItGrows from '../../components/figures/WhyItGrows.astro';
+import TheClimb from '../../components/figures/TheClimb.astro';
+import TheAnatomy from '../../components/figures/TheAnatomy.astro';
+import TheSplit from '../../components/figures/TheSplit.astro';
+import SameScale from '../../components/figures/SameScale.astro';
+
+I run a wiki that writes itself. Notes land in a folder, and every morning a local model reads whatever's new and folds it into a set of interlinked pages, which is Karpathy's raw-notes-in, wiki-out pattern running entirely on my own hardware.
+
+The 416 pages aren't really there for me to read. They're a graph that another agent reasons over, each page a concept carrying links to the concepts around it, so a page that nothing links to may as well not exist at all. The model doing the writing is `gemma4:26b-mlx` on Ollama, on a Mac mini with an M4 Pro and 48 GB of unified memory. I do route some work to Gemini, on the jobs where synthesis quality decides whether the output is worth reading at all, but the daily ingest stays local because these are my notes.
+
+## What the job actually does
+
+Calling this summarization undersells it, because the job edits a wiki rather than describing a file. For one source it has to work out which concepts the notes touch, check whether pages already exist for them, update the ones that do and create the ones that don't, link them to each other in both directions, file each page under a section of the index, and append a line to a change log.
+
+All of that runs as a tool-calling loop against Ollama. The model never touches the disk itself; it asks for things and my Python answers, using a small set of tools:
+
+- `read_raw_file` reads the source document
+- `list_wiki_pages` says what already exists
+- `read_wiki_page` and `write_wiki_page` do the actual editing
+- `list_index_sections` and `update_index` handle the filing
+- `append_log` records what changed
+
+My own rules file tells the model that a single source touching 10 to 15 pages is normal, and most days it does exactly that. Ten pages is a lot of reading and writing to hold in one conversation, which is the part I hadn't thought through.
+
+## Thirty-three warnings
+
+One morning's run finished clean and still logged 33 warnings, every one of them the same:
+
+```
+prompt reached 29773 tokens on iteration 25 (91% of num_ctx=32768)
+  — overflow is silent (Ollama drops the oldest messages)
+```
+
+Ollama doesn't fail when a prompt exceeds the window. It quietly drops the oldest messages and carries on, and the oldest message in any of these conversations is the rules file that tells the model how the wiki works, what belongs in it, and how a page should be formatted.
+
+> The run that loses its rules looks exactly like the run that didn't.
+
+I'd added that warning the day before, after an earlier run sat at 73% of the window with nothing in any log to say so, so it was doing exactly the job I built it for. What I didn't have was an answer to why one source needed 29,773 tokens to file a single day of notes.
+
+## The model forgets between every call
+
+The reason is that the model has no memory between calls. Each request is a fresh start: it reads what arrives, answers once, and keeps nothing at all. There is no conversation on its side, so for the thing to behave like one, the loop has to send the entire transcript again on every single call.
+
+That's cheap right up until the transcript starts carrying things. When the agent asks for a file, the loop reads it, appends the result to the message list, and sends that whole list again on the next call, because dropping it would leave the model with no idea the file had ever been read. The same goes for the page listing, for every page it reads, and for every page it writes. Nothing comes back out of that list until the source is finished.
+
+<WhyItGrows />
+
+## Where the 27,528 went
+
+I pulled one source out of the log and walked it turn by turn, twenty-five turns and twenty-four tool calls in all. The token counts below are Ollama's own `prompt_eval_count`, which comes back free on every response, so none of this is an estimate.
+
+<TheClimb />
+
+By the last turn the model was carrying 27,528 tokens in order to append a single line to a change log. Breaking that number into its parts is what changed my mind about the whole design, because three quarters of it was work the job had already finished.
+
+<TheAnatomy />
+
+## The cheap fix first
+
+The first thing I did was double the window, which is one line in `config/.env`:
+
+```
+OLLAMA_NUM_CTX=65536
+```
+
+The same run that had peaked at 84% now peaked at 42%, and the warnings stopped. That only worked because the machine had room to spend: the model takes 17 GB of the 48, and because it's unified memory the M4 Pro's GPU is working out of the same pool, so after the change `ollama ps` still reported `100% GPU` at the larger window. On a 16 GB machine the option isn't there at all.
+
+What it bought me was time rather than a fix. Moving the ceiling doesn't change the shape of the curve underneath it, and that curve is driven by how many pages a source touches and how many pages the wiki holds, both of which go up every week.
+
+## Rethinking it
+
+Three quarters of that prompt was material already sitting on disk: the page names the model had needed once on turn 2, the three pages it had finished reading, and the nine pages it had already written and saved. It was carrying all of it for the plain reason that it was doing the whole source in one conversation, and a single conversation can't forget selectively.
+
+So I split the work into two passes over the source, with a small third step to close it out:
+
+- **Plan.** Read the source, look at the existing page names, and decide which pages to touch. This stage has no tool that can write, so it couldn't alter the wiki even if the model tried.
+- **Execute.** One fresh conversation _per planned page_, which reads the source, reads that page, writes it, and files it in the index.
+- **Log.** A single entry for the whole source, built from a record of what actually landed rather than the model's recollection of a long conversation.
+
+Running the second pass once per page is what actually moves the number. A source touching ten pages used to accumulate ten pages worth of context before it finished; now it runs ten small conversations, none of which knows the others exist.
+
+<TheSplit />
+
+## The part I nearly broke
+
+Two of my own rules depend on the model knowing what its other pages are doing, and isolated conversations take both of them away. The first is that links have to point in both directions, because a new page that nothing links to is reachable only from the index, and for an agent reasoning over the graph that amounts to being invisible. The second is that one idea must not turn into two pages in a single run. I've had to delete `model-fusion` alongside `model-merging`, and `rag` alongside `retrieval-augmented-generation`, and a few other pairs that said the same thing under different names.
+
+The fix turned out to be cheap. Every second-pass prompt carries the names of every other page in the batch, which costs about 150 tokens against the 7,490 that reading those pages used to cost. The planning pass also emits link-backs as their own work items, so when a new page needs an inbound link, the page that will provide it becomes a unit of work with an intent line saying exactly that.
+
+## What it measured
+
+I ran the whole thing end to end against a copy of the real 416-page vault, on one source that the planning pass decided would touch ten pages. That works out to twelve conversations for the pages and the plan, plus one more to write the log entry.
+
+<SameScale />
+
+<Stats
+  items={[
+    { value: '84% → 27%', label: 'peak window used' },
+    { value: '33 → 0', label: 'context warnings' },
+    { value: '9 → 8', label: 'lint findings, vs baseline' },
+    { value: '286', label: 'tests passing' },
+  ]}
+/>
+
+That's thirteen conversations in total, the tallest being the planning pass at 17,538 tokens and the smallest the log entry at 4,267. None of them crossed 27% of the window, and more to the point none of them climbed, because there's nothing left in them to accumulate.
+
+The output held up as well as the numbers did. Lint found 7 broken links, which are exactly the same 7 the vault already had, so the run introduced none of its own. Orphan pages went from 2 down to 1, because the link-back rule fired and connected a page that had been sitting there unreferenced.
+
+## What it cost
+
+<Callout title="Four times slower">
+  The old single-pass run got through four sources in 17 minutes. The staged
+  version took 17 minutes and 11 seconds to do _one_ of them.
+
+  Those thirteen conversations ran between 40 and 150 seconds each, and every
+  one of them re-sends the rules and the source before it can start work, so
+  I'm now paying around 5,700 tokens of setup thirteen times over instead of
+  once.
+</Callout>
+
+Not all of that is the split's doing. The old run was fast partly because it was giving up: five of its replies hit the output cap and were cut off mid-page. Raising that cap to 8,000 tokens is what stopped the truncation, and it's only affordable now because the prompt is small enough to leave room for a reply that size. Under the old design the prompt alone took 84% of the window, which left nowhere to put a longer answer even if I'd wanted one.
+
+Four times slower is still four times slower, though, and the scheduled job runs on a 45-minute budget. At 17 minutes a source that works out to two sources per run, and I've had days with four of them waiting in the folder.
+
+## Where it stands
+
+So the context problem is fixed and the wall-clock problem isn't. For now I'd rather have a slow job that files everything than a fast one that silently forgets its own rules, and on the days when two sources are waiting, which is most of them, the run still finishes inside its budget.
+
+The next thing to hit is the page listing itself. Every run hands the model the name of every page in the wiki, so it can tell a genuinely new concept from one that already has a home, and that works fine at a few hundred pages and won't at a few thousand. There's no need to send the whole catalogue when three entries are what get used, so the answer is probably a search tool rather than a listing.

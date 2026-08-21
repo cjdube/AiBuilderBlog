@@ -1,0 +1,84 @@
+---
+title: 'Intentional Frugality:'
+subtitle: Building Functional AI on a Limited Monthly Budget
+standfirst: When I started actively building AI workflows this past April, I didn't sit down with a strict, pre-planned budget. What I did have was a healthy, operator-level anxiety about the cost of compute.
+pubDate: 2026-08-04
+tags: ['cost', 'tooling', 'local-first']
+canonicalUrl: 'https://medium.com/a-builders-odyssey/intentional-frugality-building-functional-ai-on-a-limited-monthly-budget-a03e9f2afec2'
+---
+
+import Photo from '../../components/Photo.astro';
+import Callout from '../../components/Callout.astro';
+import hero from '../../assets/frugality-hero.png';
+
+In software engineering, unmonitored infrastructure expenses spiral out of control fast, and for an independent builder experimenting with agentic workflows, an unexpected API bill can stall a project for weeks. Sticking to a tight budget forces me to cut tools that aren't pulling their weight.
+
+Here is exactly how I allocate my monthly budget, the token-efficiency tools and free-tier infrastructure supporting it, why runtime compute costs pushed me to local hardware, and why my current stack is about to evolve.
+
+<Photo src={hero} alt="Illustration of a lean monthly AI tooling budget." wide />
+
+## The Core Frontier Stack
+
+Instead of subscribing to half a dozen point solutions, two frontier model subscriptions form the backbone of my workflow, totaling roughly $40 a month. Each serves a distinct operational purpose in my daily build loop:
+
+- **Claude Pro (~$20/month):** My primary execution engine. I rely heavily on Claude Code to write prototypes, build applications, run automated tests, and manage Git workflows.
+- **Gemini Pro (~$20/month):** My research and planning layer. I use Gemini and NotebookLM to ask general questions, explore architecture designs, and help draft written materials before writing code.
+
+Neither subscription is unlimited, and the caps shape how I actually work day to day. Claude Pro runs on a rolling five-hour usage window: for short, everyday conversations I can expect somewhere around 45 messages before hitting the ceiling, with the window refreshing five hours after my first message, plus a separate weekly cap on top of that. Claude Code draws from the same pool as chat, so a long agent session eats into what's left for the rest of the day. The context window is roughly 200,000 tokens per conversation, which comfortably covers most single-session prototyping but still forces me to split up long-running threads or large file uploads once I get close to that ceiling.
+
+Gemini Pro moved to a similar model in 2026: instead of a flat daily prompt count, usage is now compute-based, factoring in prompt complexity, which features I'm using, and how long the conversation has run. That budget also refreshes every five hours until I hit a weekly ceiling, and heavier features like Deep Research or media generation draw the budget down faster than a plain text question. When I burn through my allotment on the higher-tier model, Gemini bumps me to a lighter model instead of cutting me off entirely.
+
+In practice, this means I treat both subscriptions as generous but finite: I batch related questions into fewer, denser messages rather than firing off a string of small ones, and I'm deliberate about which tasks actually need the frontier model versus a lighter one. Limits and pricing on both sides have shifted more than once this year, so treat these as directional rather than exact — I'd recommend checking each provider's current usage page before you budget around them.
+
+## Token Efficiency: Maximizing Frontier Model Value
+
+To make a single Pro subscription go the distance with Claude Code, managing token consumption is essential. Rather than letting agent sessions drown in raw terminal outputs or file greps, I use two specialized tools to keep context windows lean:
+
+- **RTK AI (Rust Token Killer):** An open-source CLI proxy that sits transparently between Claude Code and the command line. When the agent runs commands like `git diff`, test suites, or build scripts, RTK intercepts the output and strips out verbose boilerplate, progress bars, and repetitive log lines before it ever hits the model's context window. This cuts raw terminal token noise by up to 80% without sacrificing critical error signal.
+- **CodeGraph:** A local knowledge-graph tool that pre-indexes repository ASTs (abstract syntax trees — structured representations of code that let tools understand syntax and relationships without reparsing raw text), symbol maps, and call graphs. Instead of Claude Code burning thousands of context tokens repeatedly reading raw source files to discover dependencies, it queries CodeGraph via MCP (Model Context Protocol). The agent receives instant, structured answers about codebase relationships, drastically cutting down exploratory tool calls and token bloat.
+
+## The Free-Tier Prototyping Toolchain
+
+To wire these models into functional applications without expanding my monthly overhead, I utilize free-tier developer tools across the entire stack:
+
+- **Data Ingestion &amp; Search:** Tavily, Firecrawl, and Composio for web searching and scraping clean data.
+- **Database Infrastructure:** Supabase for relational data storage and state management.
+- **Operations &amp; Security:** Tailscale for secure remote mesh networking and ntfy for lightweight mobile push notifications.
+- **Deployment:** Git combined with Netlify for fast hosting and version control.
+
+I also evaluated platforms like Make, Resend, and Vercel, but intentionally opted out. Keeping the toolchain small keeps monthly costs close to zero.
+
+## The Pivot to Local LLMs for Runtime Compute
+
+<Callout title="The runtime problem">
+  While a lean monthly allocation works well for the development phase, running
+  an always-on AI application presents a different cost problem. If you build a
+  program that continuously uses AI as it runs, shipping every prompt to a cloud
+  API will quickly rack up massive, unintended expenses.
+
+  Implementing a hard billing cap controls the bleeding, but it also means your
+  application abruptly stops working mid-task when you hit the limit, which is
+  unusable for software you rely on daily.
+</Callout>
+
+That runtime compute friction is exactly what drove my pivot to local hardware. I brought in a Mac Mini to run Google's open-weight Gemma model locally via Ollama. The Mac Mini required an upfront hardware expense, but it drops my ongoing runtime compute cost to zero. It gives me total freedom to iterate on my personal agent (Wren) without watching a meter or worrying about cloud API limits.
+
+## Voice Dictation: Current Accelerator and Local Alternatives
+
+Outside the core model budget, I pay roughly $13 a month for Wispr Flow to handle system-wide voice dictation. I rarely type raw prompt text or long-form documents anymore; I mostly talk directly to my computer. It saves me enough time each week that it pays for itself.
+
+However, open-source and local voice-to-text models (such as `whisper.cpp` and local speech-to-text pipelines) are advancing rapidly every single day. As these local alternatives mature and integrate cleanly into desktop workflows, this recurring subscription is one expense I will likely re-evaluate and migrate on-device.
+
+## Practical Takeaways
+
+> Operating within tight financial boundaries isn't just about saving money.
+
+- Tools like RTK AI and CodeGraph compress terminal noise and eliminate blind file scanning, keeping agent sessions fast and token-efficient.
+- Cloud APIs are great for prototyping, but bad for high-frequency, continuous background loops unless you control token volume.
+- Relying on free-tier infrastructure and local execution keeps recurring operational risk predictable and manageable.
+
+## Looking Ahead: Evaluating a Switch to OpenAI
+
+While the current setup has served me well, my research layer is due for an upgrade. Over the past few months, I have been increasingly frustrated with Gemini's output quality and reliability during architectural planning. It frequently misses nuance in complex queries, requires too much prompt steering, and occasionally hangs or fails altogether mid-session.
+
+Because of this, I am planning to replace my Gemini Pro subscription with an OpenAI Pro subscription. Beyond handling general research and planning, I intend to use OpenAI as an independent evaluator for my codebase. Having a second, top-tier model family audit the architecture and code produced by Claude Code gives me an external review layer to catch edge cases, refactor flaws, and validate system designs before deployment.

@@ -1,0 +1,52 @@
+---
+import Figure from '../Figure.astro';
+---
+
+<Figure lead="The split." caption="Planning hands forward about 150 tokens, being a list of page names with one line of intent each, and that list is what replaces re-reading the pages themselves.">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Before, one conversation carries the source, the page list, every page read and every page written. After, a planning conversation hands a short list to one conversation per page, then a log conversation.">
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+
+          <text class="svg-head" x="40" y="28">Before · one conversation, 25 turns</text>
+          <rect x="40" y="42" width="820" height="62" fill="none" stroke="var(--rust)" stroke-width="1.5" rx="3"></rect>
+          <rect x="56"  y="58" width="120" height="30" fill="var(--seg-base)" rx="2"></rect>
+          <text class="svg-small" x="62" y="78" fill="var(--on-seg)">rules</text>
+          <rect x="180" y="58" width="86" height="30" fill="var(--seg-source)" rx="2"></rect>
+          <text class="svg-small" x="186" y="78" fill="var(--on-seg)">source</text>
+          <rect x="270" y="58" width="150" height="30" fill="var(--seg-list)" rx="2"></rect>
+          <text class="svg-small" x="276" y="78" fill="var(--on-seg)">416 names</text>
+          <rect x="424" y="58" width="190" height="30" fill="var(--seg-read)" rx="2"></rect>
+          <text class="svg-small" x="430" y="78" fill="var(--on-seg)">3 pages read</text>
+          <rect x="618" y="58" width="190" height="30" fill="var(--seg-write)" rx="2"></rect>
+          <text class="svg-small" x="624" y="78" fill="var(--on-seg)">9 pages written</text>
+          <text class="svg-tag" x="812" y="78" fill="var(--rust)">27,528</text>
+
+          <text class="svg-head" x="40" y="146">After · three stages, each a fresh conversation</text>
+
+          <rect x="40" y="162" width="180" height="56" fill="none" stroke="var(--sage)" stroke-width="1.5" rx="3"></rect>
+          <text class="svg-label" x="54" y="184">1 · PLAN</text>
+          <text class="svg-small" x="54" y="202">source + 416 names</text>
+          <text class="svg-tag" x="54" y="234" fill="var(--sage)">peak 17,538</text>
+
+          <line x1="222" y1="190" x2="286" y2="190" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"></line>
+          <text class="svg-small" x="228" y="182">~150 tok</text>
+
+          <rect x="292" y="150" width="180" height="50" fill="none" stroke="var(--sky)" stroke-width="1.5" rx="3"></rect>
+          <text class="svg-label" x="306" y="170">2 · EXECUTE</text>
+          <text class="svg-small" x="306" y="188">one page</text>
+          <rect x="300" y="206" width="180" height="50" fill="none" stroke="var(--sky)" stroke-width="1.5" rx="3"></rect>
+          <text class="svg-label" x="314" y="226">2 · EXECUTE</text>
+          <text class="svg-small" x="314" y="244">one page</text>
+          <text class="svg-small" x="492" y="200" fill="var(--slate)">× one per planned page</text>
+          <text class="svg-tag" x="492" y="220" fill="var(--sky)">each 6,894 – 14,004</text>
+
+          <line x1="700" y1="204" x2="756" y2="204" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"></line>
+
+          <rect x="762" y="178" width="98" height="52" fill="none" stroke="var(--lbl-admin)" stroke-width="1.5" rx="3"></rect>
+          <text class="svg-label" x="774" y="198">3 · LOG</text>
+          <text class="svg-tag" x="774" y="218" fill="var(--lbl-admin)">4,267</text>
+        </svg>
+</Figure>

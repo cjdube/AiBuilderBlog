@@ -1,0 +1,95 @@
+---
+title: 'Building Wren:'
+subtitle: How a Morning Brief Script Evolved into a Local Agent OS
+standfirst: I started with one question — how much real work can a personal AI assistant handle on local hardware, without shipping your daily life through a cloud API?
+pubDate: 2026-07-28
+tags: ['wren', 'local-first', 'ollama', 'agents']
+canonicalUrl: 'https://medium.com/a-builders-odyssey/forging-wren-how-a-morning-brief-script-evolved-into-a-local-agent-os-b6e18386a867'
+---
+
+import Photo from '../../components/Photo.astro';
+import systemMap from '../../assets/wren-system-map.png';
+
+To answer it, I spent the last few weeks building **Wren**, a local-first AI agent living on my M4 Pro Mac Mini and powered by Google's open-weight Gemma 4 model via Ollama.
+
+What started as a handful of scheduled Python scripts to organize my calendar has morphed into an always-on personal operating system. It hasn't been a straight line. Local models fail in frustrating ways, and making one dependable takes real software plumbing. Here is how Wren started, where Wren stumbled, and how Wren grew into the system running on my desk today.
+
+## Phase 1: The Origin
+
+Wren's very first commit was basic. Wren had a single, unglamorous job: run a scheduled daily task to pull my workout activities from Strava, add them to Google Calendar, and color-code the schedule. I like to keep a strict visual taxonomy on my schedule. Workouts, meal prep, AI research, and coding sessions each get their own color so I can scan my day at a glance. From there, it felt natural to extend that calendar plumbing into a unified morning digest, saving me from clicking across five different tabs with my first cup of coffee.
+
+Over the next few weeks I expanded Wren's scope into a consolidated morning brief:
+
+- **Agenda:** not only show my Google Calendar schedule but also any assigned Google Tasks.
+- **Weather:** multi-day forecasts from OpenWeatherMap, with a quick call on whether conditions made for a good running day.
+- **Code tracking:** activity across the GitHub repositories I've starred.
+
+I also used a web search tool (Tavily) to scrape AI headlines at first, then scrapped it. Curated daily newsletters deliver far better content without burning extra API calls or context space.
+
+I built a simple loopback web chat interface so I could talk to Wren from my browser. At this point Wren wasn't really an "agent" in any deep sense. Wren was a bundle of Python API scripts using a local LLM as a glorified text formatter.
+
+## Phase 2: The Limit of Local Logic
+
+Running Gemma 4 locally on 48GB of unified memory is fast, but small open-weight models have limits that show up the moment you step outside simple Q&A:
+
+- **Date math failures:** ask them to parse "last Tuesday" or handle a year boundary and they will hallucinate dates, consistently.
+- **Fragile formatting:** freehanded HTML or markdown layout drifts over multiple runs.
+- **JSON schema creep:** asking a small local model to emit complex raw JSON payloads produces intermittent structure errors.
+
+> Making a local agent dependable is a systems engineering problem.
+
+I pulled the LLM completely out of tasks that ordinary software handles better. Date math went into a shared Python helper, Strava got a direct API integration, and the model stayed focused on what it's good at: intent routing and context synthesis.
+
+To keep Gemma 4 running smoothly inside its tight local context window, I put three rules in place:
+
+- **Explicit token budgeting:** enforce hard context boundaries and log prompt token consumption on every turn.
+- **Lazy-loaded tool schemas:** group chat tools into logical subsets so the model only sees the definitions relevant to the current intent.
+- **Output capping:** truncate command outputs, search dumps, and web fetches before they hit the prompt.
+
+## Phase 3: Memory, Skills, and Asynchronous Push
+
+A chatbot that forgets everything the moment you close the browser tab isn't an agent. Wren needed persistent state, reusable execution patterns, and a way to reach me when I wasn't staring at a terminal. Three capabilities:
+
+- **Two-tier long-term memory:** active memories for explicit preferences and system rules, archival memories for historical context. Every long-term write is confirm-gated and backed by thread-safe, atomic JSON storage, so the model can't corrupt the store or hallucinate an entry into it.
+- **Procedural memory (skills):** rather than reasoning through the same multi-step command sequence from scratch every time, Wren can record, refine, and store reusable execution scripts.
+- **Proactive push and tap-to-approve:** I wired in ntfy for mobile push. Background workers run quietly and send a summary to my phone when they finish. For sensitive operations like sending email or updating memory stores, Wren sends a push with inline buttons so I can approve or reject straight from my lock screen.
+
+## Phase 4: Expanding into a Personal Testbed
+
+Once the server mechanics were stable, Wren became my testbed. Whenever I hit a repetitive research task or product evaluation loop, I built a tool for it. Instead of forcing open-ended agentic behavior, I leaned into structured pipelines designed around small-model constraints.
+
+- **Opportunity scout and research dashboard:** I started wondering if I could use Wren to help source fractional opportunities for me. Even in retirement I'm open to selective fractional Product Leadership roles, but I have zero desire to spend hours wading through job boards. Wren scans ATS portals (like iCIMS), Hacker News threads, and SEC Form D filings, and generates a clean weekly digest. I paired it with a web page where I can evaluate flagged companies, research their footprint, and decide whether to keep tracking them.
+- **Product and website teardown:** a colleague asked me to review a software application and business proposal. I wanted to deliver an honest assessment without missing critical operational details, so I built a teardown capability into Wren. Given any product or company URL, Wren strips out the marketing fluff and returns a focused analysis under four fixed headings: _Overall Assessment, Hidden Risks, Adoption Friction, and Missing Technical Constraints_.
+- **Remote mesh access:** Wren runs as an always-on background server, reachable from my phone anywhere over a Tailscale mesh network.
+- **Explorable system map:** a single-page radial dashboard of every integration point, schedule, memory tier, and tool path, in real time.
+
+<Photo
+  src={systemMap}
+  alt="Wren's system map: a radial dashboard with Wren at the centre, ringed by skills, memory, routines and applications."
+  lead="The system map."
+  caption="A single-page radial dashboard of every integration point, schedule, memory tier, and tool path, in real time."
+  wide
+/>
+
+## Phase 5: The Daily Learning Loop and LLM Wiki Sync
+
+Rather than sitting down every evening to journal what I learned or built, I wanted Wren to process my daily digital footprint unattended. Every night, background tasks review the prior day's Chrome history, liked YouTube videos, and AI chat sessions to extract the core takeaways.
+
+Chat was the hard part. Neither Claude nor Gemini offers an API for pulling conversation history out of their consumer apps. To keep the workflow local-first and ToS-compliant, Wren reads what lands on local disk:
+
+- **Claude Code logs:** the local JSON event streams, with tool outputs, system reminders, subagent sidechains, and thinking blocks stripped out to leave clean user and assistant dialogue.
+- **Gemini drop folders:** markdown transcripts placed into a local sync folder.
+
+Gemma 4 turns the cleaned transcripts into an **Accomplished / Learned** summary for each session, and an LLM Wiki Sync task writes structured markdown files into my Obsidian vault.
+
+A **Daily Synthesis** routine runs after the learning tasks finish. It compares yesterday's activity against what's already in the vault and pushes a nudge when the two connect across domains — such as flagging when a liked YouTube video matches a note already stored in the vault.
+
+## Lessons from the Bench
+
+Building an autonomous local agent on consumer hardware forces you to throw out cloud-scale assumptions and get pragmatic about architecture. After dozens of edge cases, a few hard rules emerged:
+
+1. **Let Python do the heavy lifting.** Don't spend LLM tokens on orchestration, file manipulation, or date calculations. Deterministic code handles the mechanics; the model handles judgment and synthesis.
+2. **Context space is scarce.** Small local models perform well when fed tight, clean inputs; flooding them with raw terminal dumps or unused tool schemas invites immediate hallucinations.
+3. **Safety needs human boundaries.** Atomic file locks, explicit permission gates, and mobile confirmation flows are what make a background agent something I'll actually let run unattended.
+
+I've got a lot more I could say about Wren but this post has gone on long enough. Wren remains a work in progress and something I revisit daily. Every capability I add opens new questions about memory management, context decay, and human-in-the-loop design, and working out those trade-offs is the most engaging part of the build.

@@ -1,0 +1,48 @@
+---
+import Figure from '../Figure.astro';
+---
+
+<Figure lead="The anatomy." caption="Only the two leftmost blocks are things the model still needs at this point; the rest of it records work that had already finished.">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Stacked bar breaking 27,528 tokens into rules and task 4,308, source file 1,435, page-name list 5,590, three pages read 7,490, nine pages written 7,330, and index and log housekeeping 1,375.">
+          <text class="svg-head" x="50" y="30">Turn 25 · 27,528 tokens</text>
+
+          <rect x="50"    y="46" width="125.2" height="52" fill="var(--seg-base)"></rect>
+          <rect x="175.2" y="46" width="41.7"  height="52" fill="var(--seg-source)"></rect>
+          <rect x="216.9" y="46" width="162.5" height="52" fill="var(--seg-list)"></rect>
+          <rect x="379.4" y="46" width="217.7" height="52" fill="var(--seg-read)"></rect>
+          <rect x="597.1" y="46" width="213.0" height="52" fill="var(--seg-write)"></rect>
+          <rect x="810.1" y="46" width="40.0"  height="52" fill="var(--seg-admin)"></rect>
+
+          <text class="svg-tag" x="56"  y="77" fill="var(--on-seg)">16%</text>
+          <text class="svg-tag" x="223" y="77" fill="var(--on-seg)">20%</text>
+          <text class="svg-tag" x="385" y="77" fill="var(--on-seg)">27%</text>
+          <text class="svg-tag" x="603" y="77" fill="var(--on-seg)">27%</text>
+
+          <line x1="112" y1="104" x2="112" y2="126" stroke="var(--lbl-base)" stroke-width="1.5"></line>
+          <text class="svg-label" x="112" y="142" text-anchor="middle" fill="var(--lbl-base)">rules + task</text>
+          <text class="svg-small" x="112" y="158" text-anchor="middle">4,308</text>
+
+          <line x1="196" y1="104" x2="196" y2="170" stroke="var(--lbl-source)" stroke-width="1.5"></line>
+          <text class="svg-label" x="196" y="186" text-anchor="middle" fill="var(--lbl-source)">the source file</text>
+          <text class="svg-small" x="196" y="202" text-anchor="middle">1,435</text>
+
+          <line x1="298" y1="104" x2="298" y2="126" stroke="var(--lbl-list)" stroke-width="1.5"></line>
+          <text class="svg-label" x="298" y="142" text-anchor="middle" fill="var(--lbl-list)">416 page names</text>
+          <text class="svg-small" x="298" y="158" text-anchor="middle">5,590 — used once, on turn 2</text>
+
+          <line x1="488" y1="104" x2="488" y2="126" stroke="var(--lbl-read)" stroke-width="1.5"></line>
+          <text class="svg-label" x="488" y="142" text-anchor="middle" fill="var(--lbl-read)">3 pages read</text>
+          <text class="svg-small" x="488" y="158" text-anchor="middle">7,490 — already on disk</text>
+
+          <line x1="703" y1="104" x2="703" y2="126" stroke="var(--lbl-write)" stroke-width="1.5"></line>
+          <text class="svg-label" x="703" y="142" text-anchor="middle" fill="var(--lbl-write)">9 pages written</text>
+          <text class="svg-small" x="703" y="158" text-anchor="middle">7,330 — already saved</text>
+
+          <line x1="830" y1="104" x2="830" y2="170" stroke="var(--lbl-admin)" stroke-width="1.5"></line>
+          <text class="svg-label" x="830" y="186" text-anchor="middle" fill="var(--lbl-admin)">index + log</text>
+          <text class="svg-small" x="830" y="202" text-anchor="middle">1,375</text>
+
+          <line x1="216.9" y1="228" x2="810.1" y2="228" stroke="var(--rust)" stroke-width="2"></line>
+          <text class="svg-tag" x="513" y="245" text-anchor="middle" fill="var(--rust)">74% of the prompt is material already sitting on disk</text>
+        </svg>
+</Figure>

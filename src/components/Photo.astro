@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  /** Bold run that opens the caption. */
+  lead?: string;
+  caption?: string;
+  /** Break out of the 66ch column, like the SVG figures do. */
+  wide?: boolean;
+}
+
+const { src, alt, lead, caption, wide = false } = Astro.props;
+---
+
+<figure class:list={[wide && 'fig-wide']}>
+  <Image
+    src={src}
+    alt={alt}
+    widths={[640, 1000, 1600]}
+    sizes={wide ? '(max-width: 1040px) 100vw, 1000px' : '(max-width: 720px) 100vw, 673px'}
+  />
+  {caption && (
+    <figcaption>
+      {lead && <b>{lead}</b>}{lead && ' '}{caption}
+    </figcaption>
+  )}
+</figure>

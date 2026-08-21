@@ -1,0 +1,16 @@
+---
+interface Props {
+  /** One box per item: value on top, label underneath. */
+  items: { value: string; label: string }[];
+}
+const { items } = Astro.props;
+---
+
+<div class="stats">
+  {items.map(({ value, label }) => (
+    <div class="stat">
+      <span class="v">{value}</span>
+      <span class="k">{label}</span>
+    </div>
+  ))}
+</div>

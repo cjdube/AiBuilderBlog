@@ -1,0 +1,13 @@
+---
+interface Props {
+  title: string;
+  /** Left border and heading colour. Rust is the default. */
+  tone?: 'rust' | 'sage' | 'ochre';
+}
+const { title, tone = 'rust' } = Astro.props;
+---
+
+<div class="cost" data-tone={tone}>
+  <h3>{title}</h3>
+  <slot />
+</div>

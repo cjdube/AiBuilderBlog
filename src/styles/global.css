@@ -1,0 +1,342 @@
+/* ---------------------------------------------------------------------------
+   A Builder's Odyssey — craigdube.dev
+   Palette, type and components ported from the "Managing the Context Window"
+   design. Light is the base; the two dark blocks below must stay in sync.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --paper:      #ECEFEA;
+  --panel:      #F6F8F4;
+  --ink:        #16232E;
+  --slate:      #5C6B76;
+  --hairline:   #CBD3CC;
+  --ochre:      #9A6B14;
+  --ochre-soft: #E8DBB8;
+  --rust:       #9C3626;
+  --sky:        #33607F;
+  --sage:       #4E6344;
+
+  --lbl-base:   #55697A;
+  --lbl-source: #4E6344;
+  --lbl-list:   #9C3626;
+  --lbl-read:   #85601A;
+  --lbl-write:  #33607F;
+  --lbl-admin:  #695C7D;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #10171D;
+    --panel:      #18222A;
+    --ink:        #E3E8E4;
+    --slate:      #94A6B1;
+    --hairline:   #2C3A44;
+    --ochre:      #D9A340;
+    --ochre-soft: #43371A;
+    --rust:       #E0745C;
+    --sky:        #79ABCB;
+    --sage:       #9BB08A;
+
+    --lbl-base:   #9DB0BC;
+    --lbl-source: #9BB08A;
+    --lbl-list:   #E0745C;
+    --lbl-read:   #D9A340;
+    --lbl-write:  #79ABCB;
+    --lbl-admin:  #B3A6C2;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:      #10171D;
+  --panel:      #18222A;
+  --ink:        #E3E8E4;
+  --slate:      #94A6B1;
+  --hairline:   #2C3A44;
+  --ochre:      #D9A340;
+  --ochre-soft: #43371A;
+  --rust:       #E0745C;
+  --sky:        #79ABCB;
+  --sage:       #9BB08A;
+
+  --lbl-base:   #9DB0BC;
+  --lbl-source: #9BB08A;
+  --lbl-list:   #E0745C;
+  --lbl-read:   #D9A340;
+  --lbl-write:  #79ABCB;
+  --lbl-admin:  #B3A6C2;
+}
+
+/* Segment fills are the same in both themes: they always carry --on-seg text. */
+:root {
+  --seg-base:   #55697A;
+  --seg-source: #4E6344;
+  --seg-list:   #9C3626;
+  --seg-read:   #85601A;
+  --seg-write:  #33607F;
+  --seg-admin:  #695C7D;
+  --on-seg:     #F5F7F3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 0;
+  padding: 0 1.25rem 6rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- shell --------------------------------------------------------------- */
+
+.wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 2.75rem; }
+.col  { max-width: 66ch; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.1rem; }
+
+/* The article body. MDX emits a flat stream of elements, so a three-column
+   grid does the job the artifact's <section class="col"> wrappers did: prose
+   sits in the centre track, .fig-wide breaks out across all three. */
+.post {
+  display: grid;
+  grid-template-columns: 1fr min(66ch, 100%) 1fr;
+  row-gap: 1.1rem;
+  align-content: start;
+}
+.post > *         { grid-column: 2; min-width: 0; }
+.post > .fig-wide { grid-column: 1 / -1; max-width: 1000px; width: 100%; justify-self: center; }
+
+/* --- masthead ------------------------------------------------------------ */
+
+header.masthead {
+  max-width: 66ch; width: 100%; margin: 0 auto; padding-top: 3rem;
+  display: flex; flex-direction: column; gap: 1.1rem;
+}
+
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--slate); margin: 0;
+}
+
+h1 {
+  font-family: Newsreader, Georgia, serif;
+  font-size: clamp(2.3rem, 5.6vw, 3.5rem);
+  font-weight: 600; line-height: 1.06; letter-spacing: -0.02em;
+  text-wrap: balance; margin: 0;
+}
+
+h1 .sub { display: block; font-size: 0.62em; color: var(--ochre); margin-top: 0.3em; }
+
+.standfirst {
+  font-family: Newsreader, Georgia, serif;
+  font-size: 1.3rem; line-height: 1.5; color: var(--slate); margin: 0; text-wrap: pretty;
+}
+
+.byline {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+  color: var(--slate); margin: 0; letter-spacing: 0.04em;
+}
+
+.rule { height: 1px; background: var(--hairline); border: 0; margin: 0; width: 100%; }
+
+/* --- prose --------------------------------------------------------------- */
+
+h2 {
+  font-family: Newsreader, Georgia, serif;
+  font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+  font-weight: 600; line-height: 1.15; letter-spacing: -0.01em;
+  text-wrap: balance; margin: 1.6rem 0 0;
+}
+
+h3 {
+  font-family: "IBM Plex Sans", sans-serif; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--slate); margin: 1.1rem 0 0;
+}
+
+p { margin: 0; text-wrap: pretty; }
+strong { font-weight: 600; }
+
+a { color: var(--sky); text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--ochre); }
+
+code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.87em;
+  background: var(--panel); border: 1px solid var(--hairline);
+  border-radius: 3px; padding: 0.08em 0.34em;
+}
+
+/* The drop cap. .lede is explicit; .has-lede finds the article's opening
+   paragraph on its own, which is what MDX posts use. */
+.lede::first-letter,
+.post.has-lede > p:first-of-type::first-letter {
+  font-family: Newsreader, Georgia, serif; font-size: 3.1rem; font-weight: 600;
+  float: left; line-height: 0.86; padding: 0.06em 0.09em 0 0; color: var(--ochre);
+}
+
+/* A markdown blockquote is the pull quote. Both selectors, same rule. */
+.pull,
+.post > blockquote {
+  font-family: Newsreader, Georgia, serif; font-size: 1.4rem; line-height: 1.38;
+  font-style: italic; color: var(--ink); border-left: 3px solid var(--ochre);
+  padding: 0.2rem 0 0.2rem 1.2rem; margin: 0.7rem 0; text-wrap: pretty;
+}
+.post > blockquote > p { margin: 0; }
+
+ul.tight,
+.post > ul,
+.post > ol {
+  margin: 0; padding-left: 1.2rem;
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+ul.tight li,
+.post > ul li,
+.post > ol li { padding-left: 0.15rem; }
+
+.post > hr { height: 1px; background: var(--hairline); border: 0; margin: 1.2rem 0; }
+
+/* --- figures ------------------------------------------------------------- */
+
+figure { margin: 0; width: 100%; display: flex; flex-direction: column; gap: 0.85rem; }
+.fig-wide { max-width: 1000px; margin: 0 auto; width: 100%; }
+
+.fig-frame {
+  background: var(--panel); border: 1px solid var(--hairline);
+  border-radius: 2px; padding: 1.5rem 1.25rem; overflow-x: auto;
+}
+
+figure svg {
+  display: block; width: 100%; max-width: 100%; height: auto;
+  min-width: 560px; color: var(--ink);
+}
+
+/* Photographs, unlike the SVG charts, need no minimum width and no frame. */
+figure img, .post > p > img, .post > img {
+  display: block; width: 100%; height: auto; max-width: 100%;
+  border: 1px solid var(--hairline); border-radius: 2px;
+}
+
+figcaption {
+  font-size: 0.9rem; line-height: 1.5; color: var(--slate);
+  max-width: 62ch; margin: 0 auto; text-align: center; text-wrap: pretty;
+}
+figcaption b { color: var(--ink); font-weight: 600; }
+
+.svg-label { font-family: "IBM Plex Sans", sans-serif; font-size: 12px; font-weight: 500; fill: currentColor; }
+/* For labels sitting on a filled block. A stylesheet rule beats the fill=""
+   presentation attribute, so .svg-label's currentColor was winning and painting
+   dark text on dark blocks. Same specificity, declared later, so this wins. */
+.svg-on-seg { fill: var(--on-seg); }
+.svg-small { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; fill: var(--slate); font-variant-numeric: tabular-nums; }
+.svg-tag   { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.svg-head  { font-family: "IBM Plex Sans", sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; fill: var(--slate); }
+
+/* --- tables -------------------------------------------------------------- */
+
+.table-scroll { overflow-x: auto; width: 100%; }
+
+table {
+  border-collapse: collapse; width: 100%; min-width: 520px;
+  font-size: 0.9rem; font-variant-numeric: tabular-nums;
+}
+
+thead th {
+  font-family: "IBM Plex Sans", sans-serif; font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate);
+  text-align: left; padding: 0 0.7rem 0.5rem; border-bottom: 1px solid var(--ink); white-space: nowrap;
+}
+
+tbody td { padding: 0.42rem 0.7rem; border-bottom: 1px solid var(--hairline); vertical-align: baseline; }
+tbody tr:last-child td { border-bottom: 1px solid var(--ink); }
+td.n, th.n { text-align: right; font-family: "IBM Plex Mono", monospace; }
+td.call { font-family: "IBM Plex Mono", monospace; font-size: 0.84rem; }
+td.plain { font-family: "IBM Plex Sans", sans-serif; }
+td.jump { color: var(--rust); font-weight: 600; }
+td.win { color: var(--sage); font-weight: 600; }
+tr.marked td { background: var(--ochre-soft); }
+
+/* --- stat grid ----------------------------------------------------------- */
+
+.stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); width: 100%;
+}
+.stat { background: var(--panel); padding: 1.1rem 1rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.stat .v {
+  font-family: "IBM Plex Mono", monospace; font-size: 1.7rem; font-weight: 600;
+  font-variant-numeric: tabular-nums; line-height: 1; color: var(--ochre);
+}
+.stat .k { font-size: 0.78rem; line-height: 1.35; color: var(--slate); }
+
+/* --- callout ------------------------------------------------------------- */
+
+.cost {
+  border: 1px solid var(--hairline); border-left: 3px solid var(--rust);
+  background: var(--panel); padding: 1.1rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.cost h3 { margin-top: 0; color: var(--rust); }
+.cost p { margin: 0; }
+
+.cost[data-tone="sage"] { border-left-color: var(--sage); }
+.cost[data-tone="sage"] h3 { color: var(--sage); }
+.cost[data-tone="ochre"] { border-left-color: var(--ochre); }
+.cost[data-tone="ochre"] h3 { color: var(--ochre); }
+
+/* --- code block ---------------------------------------------------------- */
+
+pre {
+  background: var(--panel); border: 1px solid var(--hairline); border-radius: 2px;
+  padding: 0.9rem 1rem; overflow-x: auto; margin: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; line-height: 1.55;
+}
+pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+
+/* --- article footer ------------------------------------------------------ */
+
+footer.colophon {
+  max-width: 66ch; width: 100%; margin: 0 auto; color: var(--slate);
+  font-size: 0.85rem; font-family: "IBM Plex Mono", monospace; line-height: 1.7;
+  border-top: 1px solid var(--hairline); padding-top: 1.2rem;
+}
+footer.colophon a { color: var(--slate); }
+
+/* --- site nav ------------------------------------------------------------ */
+
+nav.site {
+  max-width: 1000px; width: 100%; margin: 0 auto; padding: 1.5rem 0 0;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; letter-spacing: 0.04em;
+}
+nav.site .brand { color: var(--ink); text-decoration: none; font-weight: 500; }
+nav.site .brand:hover { color: var(--ochre); }
+nav.site ul { list-style: none; display: flex; gap: 1.2rem; margin: 0; padding: 0; }
+nav.site a { color: var(--slate); text-decoration: none; }
+nav.site a:hover, nav.site a[aria-current="page"] { color: var(--ochre); }
+
+/* --- index / post list --------------------------------------------------- */
+
+.postlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.postlist li { border-top: 1px solid var(--hairline); }
+.postlist li:last-child { border-bottom: 1px solid var(--hairline); }
+
+.postlist a {
+  display: flex; flex-direction: column; gap: 0.35rem;
+  padding: 1.5rem 0; text-decoration: none; color: inherit;
+}
+.postlist a:hover h2 { color: var(--ochre); }
+.postlist h2 {
+  font-size: clamp(1.35rem, 3vw, 1.75rem); margin: 0;
+  transition: color 0.12s ease;
+}
+.postlist .date {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate);
+}
+.postlist .dek { color: var(--slate); font-family: Newsreader, Georgia, serif; font-size: 1.1rem; line-height: 1.45; text-wrap: pretty; }
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .fig-frame { padding: 1rem 0.75rem; }
+}

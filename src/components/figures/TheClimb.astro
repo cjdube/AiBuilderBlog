@@ -1,0 +1,44 @@
+---
+import Figure from '../Figure.astro';
+---
+
+<Figure lead="The climb." caption="Once the agent settles into writing and filing, each turn adds under 200 tokens, but it never gets any of the early bulk back either.">
+    <svg viewBox="0 0 900 400" role="img" aria-label="Line chart of prompt size across 25 turns, rising from 4,308 tokens to 27,528 against a 32,768 ceiling, with the steepest rises in the first six turns.">
+          <line x1="70" y1="30" x2="870" y2="30" stroke="var(--rust)" stroke-width="1.5"></line>
+          <text class="svg-tag" x="70" y="23" fill="var(--rust)">32,768 — the ceiling. Past here, the oldest messages get dropped.</text>
+
+          <line x1="70" y1="126" x2="870" y2="126" stroke="var(--ochre)" stroke-width="1.2" stroke-dasharray="5 4"></line>
+          <text class="svg-tag" x="70" y="119" fill="var(--ochre)">22,938 — 70%, where my warning fires</text>
+
+          <line x1="70" y1="350" x2="870" y2="350" stroke="currentColor" stroke-width="1"></line>
+          <line x1="70" y1="30" x2="70" y2="350" stroke="var(--hairline)" stroke-width="1"></line>
+
+          <polygon points="70,350 70,307.9 103.3,293.9 136.7,239.3 170,195.5 203.3,179.1 236.7,166.2 270,146.1 303.3,138.3 336.7,136.2 370,134.2 403.3,131.7 436.7,129.7 470,118.8 503.3,103.8 536.7,94.6 570,93.8 603.3,88.3 636.7,87.5 670,86.7 703.3,85.8 736.7,85.1 770,84.3 803.3,83.5 836.7,82.7 870,81.2 870,350" fill="var(--ochre)" opacity="0.15"></polygon>
+          <polyline points="70,307.9 103.3,293.9 136.7,239.3 170,195.5 203.3,179.1 236.7,166.2 270,146.1 303.3,138.3 336.7,136.2 370,134.2 403.3,131.7 436.7,129.7 470,118.8 503.3,103.8 536.7,94.6 570,93.8 603.3,88.3 636.7,87.5 670,86.7 703.3,85.8 736.7,85.1 770,84.3 803.3,83.5 836.7,82.7 870,81.2" fill="none" stroke="var(--ochre)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+
+          <line x1="70" y1="362" x2="136.7" y2="362" stroke="var(--lbl-source)" stroke-width="3"></line>
+          <text class="svg-small" x="70" y="378" fill="var(--lbl-source)">read source</text>
+          <line x1="136.7" y1="362" x2="236.7" y2="362" stroke="var(--lbl-read)" stroke-width="3"></line>
+          <text class="svg-small" x="140" y="378" fill="var(--lbl-read)">look around</text>
+          <line x1="236.7" y1="362" x2="536.7" y2="362" stroke="var(--lbl-write)" stroke-width="3"></line>
+          <text class="svg-small" x="240" y="378" fill="var(--lbl-write)">write 9 pages</text>
+          <line x1="536.7" y1="362" x2="870" y2="362" stroke="var(--lbl-admin)" stroke-width="3"></line>
+          <text class="svg-small" x="540" y="378" fill="var(--lbl-admin)">file them, write the log line</text>
+
+          <circle cx="136.7" cy="239.3" r="4" fill="var(--lbl-list)"></circle>
+          <line x1="136.7" y1="239.3" x2="196" y2="286" stroke="var(--lbl-list)" stroke-width="1"></line>
+          <text class="svg-tag" x="200" y="290" fill="var(--lbl-list)">+5,590 — the list of all 416 page names</text>
+
+          <circle cx="170" cy="195.5" r="4" fill="var(--lbl-read)"></circle>
+          <line x1="170" y1="195.5" x2="230" y2="242" stroke="var(--lbl-read)" stroke-width="1"></line>
+          <text class="svg-tag" x="234" y="246" fill="var(--lbl-read)">+4,492 — one wiki page, read in full</text>
+
+          <circle cx="870" cy="81.2" r="4" fill="var(--ochre)"></circle>
+          <text class="svg-tag" x="866" y="71" fill="var(--ochre)" text-anchor="end">27,528 · 84% full</text>
+
+          <circle cx="70" cy="307.9" r="4" fill="var(--slate)"></circle>
+          <text class="svg-tag" x="78" y="322" fill="var(--slate)">4,308 · rules + task only</text>
+
+          <text class="svg-small" x="70" y="398" fill="var(--slate)">Each point is one round trip. Almost all the growth happens in the first six turns.</text>
+        </svg>
+</Figure>

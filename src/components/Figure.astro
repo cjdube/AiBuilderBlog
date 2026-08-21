@@ -1,0 +1,17 @@
+---
+interface Props {
+  /** Bold run that opens the caption, e.g. "Why it grows." */
+  lead?: string;
+  caption: string;
+}
+const { lead, caption } = Astro.props;
+---
+
+<figure class="fig-wide">
+  <div class="fig-frame">
+    <slot />
+  </div>
+  <figcaption>
+    {lead && <b>{lead}</b>}{lead && ' '}{caption}
+  </figcaption>
+</figure>

@@ -1,0 +1,31 @@
+---
+title: The journey begins…
+standfirst: Welcome to my personal logbook. As a tech professional who bridges the gap between Product Management, Engineering Operations, and Software Development, I built this space to document my transition from a 35-year career into an active phase of post-retirement technical building.
+pubDate: 2026-07-25
+tags: ['meta', 'wren', 'local-first']
+canonicalUrl: 'https://medium.com/a-builders-odyssey/the-journey-begins-a78d5857bafd'
+---
+
+import Photo from '../../components/Photo.astro';
+import hero from '../../assets/journey-begins-hero.png';
+
+This blog is not a record of a fixed destination I have already reached, but a log of a continuous learning journey.
+
+<Photo src={hero} alt="A wooden galley under sail leaving a walled harbour at dawn." wide />
+
+Since April 2026, I have been actively building and hardening AI workflows to solve real organizational friction. I am not here to write theoretical strategy decks or lecture about the "one true way" to do things. My goal is simply to share how I approach problems, why I choose specific paths, and the practical lessons I learn along the way. I rely heavily on Claude Code to plan, build, test, and code-review, focusing strictly on the actual mechanics of getting things built and making sure they run efficiently.
+
+My primary proof of work to date is Wren: an autonomous, local-first AI agent powered by Gemma 4 running securely on my Mac Mini. Nothing about my day gets shipped to someone else's API at runtime. Wren independently handles my morning briefings, parses my Obsidian wiki, and executes background tasks via a tap-to-approve push notification flow.
+
+## What to Expect in Future Posts
+
+This blog will serve as a direct feed of my personal execution paths and the insights gained while building these operational systems. Topics include:
+
+- **Local-First Architecture:** The mechanics of how I structured Wren's memory systems, asynchronous background tasks, and procedural skills using open-weight models, including the roadblocks I hit and the lessons learned solving them.
+- **The Agent Toolchain:** My personal approach to navigating the "context problem." I will share the specific tools and GitHub repos I am testing to compress terminal outputs and fit more productive work into tight context windows.
+- **Rigorous Validation in Vibe Coding:** My approach to maintaining engineering professionalism while building with Claude Code. I will share the practical lessons learned from managing over 540 separate validation tests across Wren's 19 different tasks, and why this level of scrutiny is critical when relying on AI to write software.
+- **Curated Signal:** The specific YouTube channels, newsletters, and resources I actively rely on to filter out the noise and find practical value.
+
+> The goal of this blog isn't to position myself as a guru with all the answers. It is simply a public workbench where I track my results.
+
+I will share what I build, the technical trade-offs I make, and the actual ROI of the effort. If you are also trying to figure out how to make these tools do real work, I hope these notes save you some trial and error.

@@ -1,0 +1,58 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>['data'];
+}
+
+const { post } = Astro.props;
+const {
+  title, subtitle, standfirst, pubDate, author,
+  canonicalUrl, dropCap, colophon,
+} = post;
+
+// The headline is split across two lines, so a trailing colon is normal in
+// `title`. Rejoin them for the tab and for search results.
+const fullTitle = [title, subtitle].filter(Boolean).join(' ');
+
+const dateLabel = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+});
+---
+
+<BaseLayout
+  title={`${fullTitle} — A Builder's Odyssey`}
+  description={standfirst}
+  canonical={canonicalUrl}
+  ogType="article"
+  publishedTime={pubDate}
+>
+  <div class="wrap">
+    <header class="masthead">
+      <p class="eyebrow">A Builder&rsquo;s Odyssey</p>
+      <h1>
+        {title}{subtitle && <span class="sub">{subtitle}</span>}
+      </h1>
+      <p class="standfirst">{standfirst}</p>
+      <p class="byline">
+        {author} &middot; <time datetime={pubDate.toISOString()}>{dateLabel}</time>
+      </p>
+      <hr class="rule" />
+    </header>
+
+    <article class:list={['post', dropCap && 'has-lede']}>
+      <slot />
+    </article>
+
+    <footer class="colophon">
+      {colophon?.map((line: string) => <Fragment set:html={line + '<br>'} />)}
+      {canonicalUrl && (
+        <Fragment>
+          Originally published on <a href={canonicalUrl}>Medium</a>.<br />
+        </Fragment>
+      )}
+      <a href="/">&larr; All writing</a>
+    </footer>
+  </div>
+</BaseLayout>

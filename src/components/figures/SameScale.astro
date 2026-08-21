@@ -1,0 +1,40 @@
+---
+import Figure from '../Figure.astro';
+---
+
+<Figure lead="The same work, drawn to the same scale." caption="The left panel climbs because every result stays in the conversation, while the right panel stays flat because each conversation ends before anything can pile up.">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Before, one conversation climbing to 27,528 tokens. After, thirteen conversations, the tallest 17,538 and most under 11,000, plotted on the same scale.">
+          <line x1="60" y1="30" x2="880" y2="30" stroke="var(--rust)" stroke-width="1.2" stroke-dasharray="4 4"></line>
+          <text class="svg-small" x="60" y="24" fill="var(--rust)">32,768</text>
+
+          <text class="svg-head" x="60" y="58">Before · one conversation</text>
+          <text class="svg-head" x="500" y="58">After · 13 conversations</text>
+
+          <line x1="60" y1="260" x2="440" y2="260" stroke="currentColor" stroke-width="1"></line>
+          <polygon points="60,260 60,229.8 75.8,219.7 91.7,180.5 107.5,148.9 123.3,137.2 139.2,127.9 155,113.5 170.8,107.8 186.7,106.3 202.5,104.9 218.3,103.1 234.2,101.7 250,93.8 265.8,83.0 281.7,76.4 297.5,75.9 313.3,71.9 329.2,71.3 345,70.8 360.8,70.1 376.7,69.6 392.5,69.0 408.3,68.4 424.2,67.8 440,66.8 440,260" fill="var(--rust)" opacity="0.14"></polygon>
+          <polyline points="60,229.8 75.8,219.7 91.7,180.5 107.5,148.9 123.3,137.2 139.2,127.9 155,113.5 170.8,107.8 186.7,106.3 202.5,104.9 218.3,103.1 234.2,101.7 250,93.8 265.8,83.0 281.7,76.4 297.5,75.9 313.3,71.9 329.2,71.3 345,70.8 360.8,70.1 376.7,69.6 392.5,69.0 408.3,68.4 424.2,67.8 440,66.8" fill="none" stroke="var(--rust)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+          <circle cx="440" cy="66.8" r="4" fill="var(--rust)"></circle>
+          <text class="svg-tag" x="434" y="58" text-anchor="end" fill="var(--rust)">27,528 · 84%</text>
+
+          <line x1="500" y1="260" x2="880" y2="260" stroke="currentColor" stroke-width="1"></line>
+          <rect x="500" y="136.9" width="22" height="123.1" fill="var(--sage)"></rect>
+          <rect x="529" y="185.9" width="22" height="74.1" fill="var(--sky)"></rect>
+          <rect x="558" y="161.7" width="22" height="98.3" fill="var(--sky)"></rect>
+          <rect x="587" y="193.1" width="22" height="66.9" fill="var(--sky)"></rect>
+          <rect x="616" y="171.8" width="22" height="88.2" fill="var(--sky)"></rect>
+          <rect x="645" y="187.4" width="22" height="72.6" fill="var(--sky)"></rect>
+          <rect x="674" y="198.6" width="22" height="61.4" fill="var(--sky)"></rect>
+          <rect x="703" y="192.2" width="22" height="67.8" fill="var(--sky)"></rect>
+          <rect x="732" y="197.6" width="22" height="62.4" fill="var(--sky)"></rect>
+          <rect x="761" y="167.2" width="22" height="92.8" fill="var(--sky)"></rect>
+          <rect x="790" y="211.6" width="22" height="48.4" fill="var(--sky)"></rect>
+          <rect x="819" y="195.0" width="22" height="65.0" fill="var(--sky)"></rect>
+          <rect x="848" y="230.0" width="22" height="30.0" fill="var(--lbl-admin)"></rect>
+
+          <text class="svg-tag" x="500" y="130" fill="var(--sage)">17,538</text>
+          <text class="svg-small" x="500" y="276" fill="var(--sage)">plan</text>
+          <text class="svg-small" x="600" y="276" fill="var(--sky)">one bar per page</text>
+          <text class="svg-small" x="838" y="276" fill="var(--lbl-admin)">log</text>
+          <text class="svg-tag" x="880" y="130" text-anchor="end" fill="var(--sky)">tallest page: 14,004 · 21%</text>
+        </svg>
+</Figure>
