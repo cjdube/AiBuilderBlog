@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://craigdube.dev/sitemap-index.xml
+Sitemap: https://blog.craigdube.dev/sitemap-index.xml
