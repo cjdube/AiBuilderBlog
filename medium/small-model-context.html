@@ -1,0 +1,632 @@
+<title>Managing the Context Window</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+:root {
+  --paper:      #ECEFEA;
+  --panel:      #F6F8F4;
+  --ink:        #16232E;
+  --slate:      #5C6B76;
+  --hairline:   #CBD3CC;
+  --ochre:      #9A6B14;
+  --ochre-soft: #E8DBB8;
+  --rust:       #9C3626;
+  --sky:        #33607F;
+  --sage:       #4E6344;
+
+  --lbl-base:   #55697A;
+  --lbl-source: #4E6344;
+  --lbl-list:   #9C3626;
+  --lbl-read:   #85601A;
+  --lbl-write:  #33607F;
+  --lbl-admin:  #695C7D;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #10171D;
+    --panel:      #18222A;
+    --ink:        #E3E8E4;
+    --slate:      #94A6B1;
+    --hairline:   #2C3A44;
+    --ochre:      #D9A340;
+    --ochre-soft: #43371A;
+    --rust:       #E0745C;
+    --sky:        #79ABCB;
+    --sage:       #9BB08A;
+
+    --lbl-base:   #9DB0BC;
+    --lbl-source: #9BB08A;
+    --lbl-list:   #E0745C;
+    --lbl-read:   #D9A340;
+    --lbl-write:  #79ABCB;
+    --lbl-admin:  #B3A6C2;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:      #10171D;
+  --panel:      #18222A;
+  --ink:        #E3E8E4;
+  --slate:      #94A6B1;
+  --hairline:   #2C3A44;
+  --ochre:      #D9A340;
+  --ochre-soft: #43371A;
+  --rust:       #E0745C;
+  --sky:        #79ABCB;
+  --sage:       #9BB08A;
+
+  --lbl-base:   #9DB0BC;
+  --lbl-source: #9BB08A;
+  --lbl-list:   #E0745C;
+  --lbl-read:   #D9A340;
+  --lbl-write:  #79ABCB;
+  --lbl-admin:  #B3A6C2;
+}
+
+:root {
+  --seg-base:   #55697A;
+  --seg-source: #4E6344;
+  --seg-list:   #9C3626;
+  --seg-read:   #85601A;
+  --seg-write:  #33607F;
+  --seg-admin:  #695C7D;
+  --on-seg:     #F5F7F3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 0;
+  padding: 0 1.25rem 6rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 2.75rem; }
+.col  { max-width: 66ch; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.1rem; }
+
+header.masthead {
+  max-width: 66ch; width: 100%; margin: 0 auto; padding-top: 4.5rem;
+  display: flex; flex-direction: column; gap: 1.1rem;
+}
+
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--slate); margin: 0;
+}
+
+h1 {
+  font-family: Newsreader, Georgia, serif;
+  font-size: clamp(2.3rem, 5.6vw, 3.5rem);
+  font-weight: 600; line-height: 1.06; letter-spacing: -0.02em;
+  text-wrap: balance; margin: 0;
+}
+
+h1 .sub { display: block; font-size: 0.62em; color: var(--ochre); margin-top: 0.3em; }
+
+.standfirst {
+  font-family: Newsreader, Georgia, serif;
+  font-size: 1.3rem; line-height: 1.5; color: var(--slate); margin: 0; text-wrap: pretty;
+}
+
+.byline {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+  color: var(--slate); margin: 0; letter-spacing: 0.04em;
+}
+
+.rule { height: 1px; background: var(--hairline); border: 0; margin: 0; width: 100%; }
+
+h2 {
+  font-family: Newsreader, Georgia, serif;
+  font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+  font-weight: 600; line-height: 1.15; letter-spacing: -0.01em;
+  text-wrap: balance; margin: 1.6rem 0 0;
+}
+
+h3 {
+  font-family: "IBM Plex Sans", sans-serif; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--slate); margin: 1.1rem 0 0;
+}
+
+p { margin: 0; text-wrap: pretty; }
+strong { font-weight: 600; }
+
+code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.87em;
+  background: var(--panel); border: 1px solid var(--hairline);
+  border-radius: 3px; padding: 0.08em 0.34em;
+}
+
+.lede::first-letter {
+  font-family: Newsreader, Georgia, serif; font-size: 3.1rem; font-weight: 600;
+  float: left; line-height: 0.86; padding: 0.06em 0.09em 0 0; color: var(--ochre);
+}
+
+.pull {
+  font-family: Newsreader, Georgia, serif; font-size: 1.4rem; line-height: 1.38;
+  font-style: italic; color: var(--ink); border-left: 3px solid var(--ochre);
+  padding: 0.2rem 0 0.2rem 1.2rem; margin: 0.7rem 0; text-wrap: pretty;
+}
+
+ul.tight { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
+ul.tight li { padding-left: 0.15rem; }
+
+figure { margin: 0; width: 100%; display: flex; flex-direction: column; gap: 0.85rem; }
+.fig-wide { max-width: 1000px; margin: 0 auto; width: 100%; }
+
+.fig-frame {
+  background: var(--panel); border: 1px solid var(--hairline);
+  border-radius: 2px; padding: 1.5rem 1.25rem; overflow-x: auto;
+}
+
+figure svg {
+  display: block; width: 100%; max-width: 100%; height: auto;
+  min-width: 560px; color: var(--ink);
+}
+
+figcaption {
+  font-size: 0.9rem; line-height: 1.5; color: var(--slate);
+  max-width: 62ch; margin: 0 auto; text-align: center; text-wrap: pretty;
+}
+figcaption b { color: var(--ink); font-weight: 600; }
+
+.svg-label { font-family: "IBM Plex Sans", sans-serif; font-size: 12px; font-weight: 500; fill: currentColor; }
+/* For labels sitting on a filled block. A stylesheet rule beats the fill=""
+   presentation attribute, so .svg-label's currentColor was winning and painting
+   dark text on dark blocks. Same specificity, declared later, so this wins. */
+.svg-on-seg { fill: var(--on-seg); }
+.svg-small { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px; fill: var(--slate); font-variant-numeric: tabular-nums; }
+.svg-tag   { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.svg-head  { font-family: "IBM Plex Sans", sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; fill: var(--slate); }
+
+.table-scroll { overflow-x: auto; width: 100%; }
+
+table {
+  border-collapse: collapse; width: 100%; min-width: 520px;
+  font-size: 0.9rem; font-variant-numeric: tabular-nums;
+}
+
+thead th {
+  font-family: "IBM Plex Sans", sans-serif; font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate);
+  text-align: left; padding: 0 0.7rem 0.5rem; border-bottom: 1px solid var(--ink); white-space: nowrap;
+}
+
+tbody td { padding: 0.42rem 0.7rem; border-bottom: 1px solid var(--hairline); vertical-align: baseline; }
+tbody tr:last-child td { border-bottom: 1px solid var(--ink); }
+td.n, th.n { text-align: right; font-family: "IBM Plex Mono", monospace; }
+td.call { font-family: "IBM Plex Mono", monospace; font-size: 0.84rem; }
+td.plain { font-family: "IBM Plex Sans", sans-serif; }
+td.jump { color: var(--rust); font-weight: 600; }
+td.win { color: var(--sage); font-weight: 600; }
+tr.marked td { background: var(--ochre-soft); }
+
+.stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); width: 100%;
+}
+.stat { background: var(--panel); padding: 1.1rem 1rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.stat .v {
+  font-family: "IBM Plex Mono", monospace; font-size: 1.7rem; font-weight: 600;
+  font-variant-numeric: tabular-nums; line-height: 1; color: var(--ochre);
+}
+.stat .k { font-size: 0.78rem; line-height: 1.35; color: var(--slate); }
+
+.cost {
+  border: 1px solid var(--hairline); border-left: 3px solid var(--rust);
+  background: var(--panel); padding: 1.1rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.cost h3 { margin-top: 0; color: var(--rust); }
+
+pre {
+  background: var(--panel); border: 1px solid var(--hairline); border-radius: 2px;
+  padding: 0.9rem 1rem; overflow-x: auto; margin: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; line-height: 1.55;
+}
+
+footer {
+  max-width: 66ch; width: 100%; margin: 0 auto; color: var(--slate);
+  font-size: 0.85rem; font-family: "IBM Plex Mono", monospace; line-height: 1.7;
+  border-top: 1px solid var(--hairline); padding-top: 1.2rem;
+}
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .fig-frame { padding: 1rem 0.75rem; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">A Builder's Odyssey</p>
+  <h1>Challenges of a Small Model:<span class="sub">Managing the Context Window</span></h1>
+  <p class="standfirst">My nightly wiki job kept warning me it was almost out of context. Doubling the window made the warnings stop, which turned out to be the least interesting thing I could have done about it.</p>
+  <p class="byline">Craig Dubé</p>
+  <hr class="rule">
+</header>
+
+<section class="col">
+  <p class="lede">I run a wiki that writes itself. Notes land in a folder, and every morning a local model reads whatever's new and folds it into a set of interlinked pages, which is Karpathy's raw-notes-in, wiki-out pattern running entirely on my own hardware.</p>
+
+  <p>The 416 pages aren't really there for me to read. They're a graph that another agent reasons over, each page a concept carrying links to the concepts around it, so a page that nothing links to may as well not exist at all. The model doing the writing is <code>gemma4:26b-mlx</code> on Ollama, on a Mac mini with an M4 Pro and 48 GB of unified memory. I do route some work to Gemini, on the jobs where synthesis quality decides whether the output is worth reading at all, but the daily ingest stays local because these are my notes.</p>
+</section>
+
+<section class="col">
+  <h2>What the job actually does</h2>
+
+  <p>Calling this summarization undersells it, because the job edits a wiki rather than describing a file. For one source it has to work out which concepts the notes touch, check whether pages already exist for them, update the ones that do and create the ones that don't, link them to each other in both directions, file each page under a section of the index, and append a line to a change log.</p>
+
+  <p>All of that runs as a tool-calling loop against Ollama. The model never touches the disk itself; it asks for things and my Python answers, using a small set of tools:</p>
+
+  <ul class="tight">
+    <li><code>read_raw_file</code> reads the source document</li>
+    <li><code>list_wiki_pages</code> says what already exists</li>
+    <li><code>read_wiki_page</code> and <code>write_wiki_page</code> do the actual editing</li>
+    <li><code>list_index_sections</code> and <code>update_index</code> handle the filing</li>
+    <li><code>append_log</code> records what changed</li>
+  </ul>
+
+  <p>My own rules file tells the model that a single source touching 10 to 15 pages is normal, and most days it does exactly that. Ten pages is a lot of reading and writing to hold in one conversation, which is the part I hadn't thought through.</p>
+</section>
+
+<section class="col">
+  <h2>Thirty-three warnings</h2>
+
+  <p>One morning's run finished clean and still logged 33 warnings, every one of them the same:</p>
+
+  <pre>prompt reached 29773 tokens on iteration 25 (91% of num_ctx=32768)
+  — overflow is silent (Ollama drops the oldest messages)</pre>
+
+  <p>Ollama doesn't fail when a prompt exceeds the window. It quietly drops the oldest messages and carries on, and the oldest message in any of these conversations is the rules file that tells the model how the wiki works, what belongs in it, and how a page should be formatted.</p>
+
+  <p class="pull">The run that loses its rules looks exactly like the run that didn't.</p>
+
+  <p>I'd added that warning the day before, after an earlier run sat at 73% of the window with nothing in any log to say so, so it was doing exactly the job I built it for. What I didn't have was an answer to why one source needed 29,773 tokens to file a single day of notes.</p>
+</section>
+
+<section class="col">
+  <h2>The model forgets between every call</h2>
+
+  <p>The reason is that the model has no memory between calls. Each request is a fresh start: it reads what arrives, answers once, and keeps nothing at all. There is no conversation on its side, so for the thing to behave like one, the loop has to send the entire transcript again on every single call.</p>
+
+  <p>That's cheap right up until the transcript starts carrying things. When the agent asks for a file, the loop reads it, appends the result to the message list, and sends that whole list again on the next call, because dropping it would leave the model with no idea the file had ever been read. The same goes for the page listing, for every page it reads, and for every page it writes. Nothing comes back out of that list until the source is finished.</p>
+</section>
+
+<figure class="fig-wide">
+  <div class="fig-frame">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Three turns of the loop. Each turn re-sends the entire transcript to a model that starts blank, and each tool result is appended permanently.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="currentColor"></path>
+        </marker>
+      </defs>
+
+      <text class="svg-head" x="30" y="26">What the loop sends, growing every turn</text>
+      <text class="svg-head" x="676" y="26">The model — blank every turn</text>
+
+      <text class="svg-tag" x="30" y="70" fill="var(--slate)">TURN 1</text>
+      <rect x="100" y="54" width="150" height="24" fill="var(--seg-base)" rx="2"></rect>
+      <text class="svg-label svg-on-seg" x="108" y="71">rules + task</text>
+      <text class="svg-small" x="262" y="71">4,308</text>
+      <line x1="330" y1="66" x2="660" y2="66" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"></line>
+      <text class="svg-small" x="400" y="58">the whole transcript</text>
+      <rect x="676" y="46" width="190" height="40" fill="none" stroke="currentColor" stroke-width="1.5" rx="2"></rect>
+      <text class="svg-label" x="694" y="71">reads it, replies, forgets</text>
+
+      <text class="svg-tag" x="30" y="146" fill="var(--slate)">TURN 2</text>
+      <rect x="100" y="130" width="150" height="24" fill="var(--seg-base)" rx="2"></rect>
+      <rect x="252" y="130" width="50" height="24" fill="var(--seg-source)" rx="2"></rect>
+      <text class="svg-label svg-on-seg" x="108" y="147">rules + task</text>
+      <text class="svg-small" x="314" y="147">5,743</text>
+      <text class="svg-small" x="252" y="170" fill="var(--lbl-source)">+1,435 the source file</text>
+      <line x1="382" y1="142" x2="660" y2="142" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"></line>
+      <text class="svg-small" x="420" y="134">all of it, again</text>
+      <rect x="676" y="122" width="190" height="40" fill="none" stroke="currentColor" stroke-width="1.5" rx="2"></rect>
+      <text class="svg-label" x="694" y="147">reads it, replies, forgets</text>
+
+      <text class="svg-tag" x="30" y="222" fill="var(--slate)">TURN 3</text>
+      <rect x="100" y="206" width="150" height="24" fill="var(--seg-base)" rx="2"></rect>
+      <rect x="252" y="206" width="50" height="24" fill="var(--seg-source)" rx="2"></rect>
+      <rect x="304" y="206" width="195" height="24" fill="var(--seg-list)" rx="2"></rect>
+      <text class="svg-label svg-on-seg" x="108" y="223">rules + task</text>
+      <text class="svg-label svg-on-seg" x="312" y="223">416 page names</text>
+      <text class="svg-small" x="511" y="223">11,333</text>
+      <text class="svg-small" x="304" y="246" fill="var(--lbl-list)">+5,590 — the biggest single jump of the run</text>
+      <line x1="576" y1="218" x2="660" y2="218" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"></line>
+      <rect x="676" y="198" width="190" height="40" fill="none" stroke="currentColor" stroke-width="1.5" rx="2"></rect>
+      <text class="svg-label" x="694" y="223">reads it, replies, forgets</text>
+
+      <text class="svg-small" x="100" y="284" fill="var(--slate)">…and so on for 22 more turns. Nothing is ever removed.</text>
+    </svg>
+  </div>
+  <figcaption><b>Why it grows.</b> The model on the right starts blank on every call, so the message list on the left has to carry the whole history forward. A tool result appended on turn 2 is still being re-sent on turn 25.</figcaption>
+</figure>
+
+<section class="col">
+  <h2>Where the 27,528 went</h2>
+
+  <p>I pulled one source out of the log and walked it turn by turn, twenty-five turns and twenty-four tool calls in all. The token counts below are Ollama's own <code>prompt_eval_count</code>, which comes back free on every response, so none of this is an estimate.</p>
+</section>
+
+<figure class="fig-wide">
+  <div class="fig-frame">
+    <svg viewBox="0 0 900 400" role="img" aria-label="Line chart of prompt size across 25 turns, rising from 4,308 tokens to 27,528 against a 32,768 ceiling, with the steepest rises in the first six turns.">
+      <line x1="70" y1="30" x2="870" y2="30" stroke="var(--rust)" stroke-width="1.5"></line>
+      <text class="svg-tag" x="70" y="23" fill="var(--rust)">32,768 — the ceiling. Past here, the oldest messages get dropped.</text>
+
+      <line x1="70" y1="126" x2="870" y2="126" stroke="var(--ochre)" stroke-width="1.2" stroke-dasharray="5 4"></line>
+      <text class="svg-tag" x="70" y="119" fill="var(--ochre)">22,938 — 70%, where my warning fires</text>
+
+      <line x1="70" y1="350" x2="870" y2="350" stroke="currentColor" stroke-width="1"></line>
+      <line x1="70" y1="30" x2="70" y2="350" stroke="var(--hairline)" stroke-width="1"></line>
+
+      <polygon points="70,350 70,307.9 103.3,293.9 136.7,239.3 170,195.5 203.3,179.1 236.7,166.2 270,146.1 303.3,138.3 336.7,136.2 370,134.2 403.3,131.7 436.7,129.7 470,118.8 503.3,103.8 536.7,94.6 570,93.8 603.3,88.3 636.7,87.5 670,86.7 703.3,85.8 736.7,85.1 770,84.3 803.3,83.5 836.7,82.7 870,81.2 870,350" fill="var(--ochre)" opacity="0.15"></polygon>
+      <polyline points="70,307.9 103.3,293.9 136.7,239.3 170,195.5 203.3,179.1 236.7,166.2 270,146.1 303.3,138.3 336.7,136.2 370,134.2 403.3,131.7 436.7,129.7 470,118.8 503.3,103.8 536.7,94.6 570,93.8 603.3,88.3 636.7,87.5 670,86.7 703.3,85.8 736.7,85.1 770,84.3 803.3,83.5 836.7,82.7 870,81.2" fill="none" stroke="var(--ochre)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+
+      <line x1="70" y1="362" x2="136.7" y2="362" stroke="var(--lbl-source)" stroke-width="3"></line>
+      <text class="svg-small" x="70" y="378" fill="var(--lbl-source)">read source</text>
+      <line x1="136.7" y1="362" x2="236.7" y2="362" stroke="var(--lbl-read)" stroke-width="3"></line>
+      <text class="svg-small" x="140" y="378" fill="var(--lbl-read)">look around</text>
+      <line x1="236.7" y1="362" x2="536.7" y2="362" stroke="var(--lbl-write)" stroke-width="3"></line>
+      <text class="svg-small" x="240" y="378" fill="var(--lbl-write)">write 9 pages</text>
+      <line x1="536.7" y1="362" x2="870" y2="362" stroke="var(--lbl-admin)" stroke-width="3"></line>
+      <text class="svg-small" x="540" y="378" fill="var(--lbl-admin)">file them, write the log line</text>
+
+      <circle cx="136.7" cy="239.3" r="4" fill="var(--lbl-list)"></circle>
+      <line x1="136.7" y1="239.3" x2="196" y2="286" stroke="var(--lbl-list)" stroke-width="1"></line>
+      <text class="svg-tag" x="200" y="290" fill="var(--lbl-list)">+5,590 — the list of all 416 page names</text>
+
+      <circle cx="170" cy="195.5" r="4" fill="var(--lbl-read)"></circle>
+      <line x1="170" y1="195.5" x2="230" y2="242" stroke="var(--lbl-read)" stroke-width="1"></line>
+      <text class="svg-tag" x="234" y="246" fill="var(--lbl-read)">+4,492 — one wiki page, read in full</text>
+
+      <circle cx="870" cy="81.2" r="4" fill="var(--ochre)"></circle>
+      <text class="svg-tag" x="866" y="71" fill="var(--ochre)" text-anchor="end">27,528 · 84% full</text>
+
+      <circle cx="70" cy="307.9" r="4" fill="var(--slate)"></circle>
+      <text class="svg-tag" x="78" y="322" fill="var(--slate)">4,308 · rules + task only</text>
+
+      <text class="svg-small" x="70" y="398" fill="var(--slate)">Each point is one round trip. Almost all the growth happens in the first six turns.</text>
+    </svg>
+  </div>
+  <figcaption><b>The climb.</b> Once the agent settles into writing and filing, each turn adds under 200 tokens, but it never gets any of the early bulk back either.</figcaption>
+</figure>
+
+<section class="col">
+  <p>By the last turn the model was carrying 27,528 tokens in order to append a single line to a change log. Breaking that number into its parts is what changed my mind about the whole design, because three quarters of it was work the job had already finished.</p>
+</section>
+
+<figure class="fig-wide">
+  <div class="fig-frame">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Stacked bar breaking 27,528 tokens into rules and task 4,308, source file 1,435, page-name list 5,590, three pages read 7,490, nine pages written 7,330, and index and log housekeeping 1,375.">
+      <text class="svg-head" x="50" y="30">Turn 25 · 27,528 tokens</text>
+
+      <rect x="50"    y="46" width="125.2" height="52" fill="var(--seg-base)"></rect>
+      <rect x="175.2" y="46" width="41.7"  height="52" fill="var(--seg-source)"></rect>
+      <rect x="216.9" y="46" width="162.5" height="52" fill="var(--seg-list)"></rect>
+      <rect x="379.4" y="46" width="217.7" height="52" fill="var(--seg-read)"></rect>
+      <rect x="597.1" y="46" width="213.0" height="52" fill="var(--seg-write)"></rect>
+      <rect x="810.1" y="46" width="40.0"  height="52" fill="var(--seg-admin)"></rect>
+
+      <text class="svg-tag" x="56"  y="77" fill="var(--on-seg)">16%</text>
+      <text class="svg-tag" x="223" y="77" fill="var(--on-seg)">20%</text>
+      <text class="svg-tag" x="385" y="77" fill="var(--on-seg)">27%</text>
+      <text class="svg-tag" x="603" y="77" fill="var(--on-seg)">27%</text>
+
+      <line x1="112" y1="104" x2="112" y2="126" stroke="var(--lbl-base)" stroke-width="1.5"></line>
+      <text class="svg-label" x="112" y="142" text-anchor="middle" fill="var(--lbl-base)">rules + task</text>
+      <text class="svg-small" x="112" y="158" text-anchor="middle">4,308</text>
+
+      <line x1="196" y1="104" x2="196" y2="170" stroke="var(--lbl-source)" stroke-width="1.5"></line>
+      <text class="svg-label" x="196" y="186" text-anchor="middle" fill="var(--lbl-source)">the source file</text>
+      <text class="svg-small" x="196" y="202" text-anchor="middle">1,435</text>
+
+      <line x1="298" y1="104" x2="298" y2="126" stroke="var(--lbl-list)" stroke-width="1.5"></line>
+      <text class="svg-label" x="298" y="142" text-anchor="middle" fill="var(--lbl-list)">416 page names</text>
+      <text class="svg-small" x="298" y="158" text-anchor="middle">5,590 — used once, on turn 2</text>
+
+      <line x1="488" y1="104" x2="488" y2="126" stroke="var(--lbl-read)" stroke-width="1.5"></line>
+      <text class="svg-label" x="488" y="142" text-anchor="middle" fill="var(--lbl-read)">3 pages read</text>
+      <text class="svg-small" x="488" y="158" text-anchor="middle">7,490 — already on disk</text>
+
+      <line x1="703" y1="104" x2="703" y2="126" stroke="var(--lbl-write)" stroke-width="1.5"></line>
+      <text class="svg-label" x="703" y="142" text-anchor="middle" fill="var(--lbl-write)">9 pages written</text>
+      <text class="svg-small" x="703" y="158" text-anchor="middle">7,330 — already saved</text>
+
+      <line x1="830" y1="104" x2="830" y2="170" stroke="var(--lbl-admin)" stroke-width="1.5"></line>
+      <text class="svg-label" x="830" y="186" text-anchor="middle" fill="var(--lbl-admin)">index + log</text>
+      <text class="svg-small" x="830" y="202" text-anchor="middle">1,375</text>
+
+      <line x1="216.9" y1="228" x2="810.1" y2="228" stroke="var(--rust)" stroke-width="2"></line>
+      <text class="svg-tag" x="513" y="245" text-anchor="middle" fill="var(--rust)">74% of the prompt is material already sitting on disk</text>
+    </svg>
+  </div>
+  <figcaption><b>The anatomy.</b> Only the two leftmost blocks are things the model still needs at this point; the rest of it records work that had already finished.</figcaption>
+</figure>
+
+<section class="col">
+  <h2>The cheap fix first</h2>
+
+  <p>The first thing I did was double the window, which is one line in <code>config/.env</code>:</p>
+
+  <pre>OLLAMA_NUM_CTX=65536</pre>
+
+  <p>The same run that had peaked at 84% now peaked at 42%, and the warnings stopped. That only worked because the machine had room to spend: the model takes 17 GB of the 48, and because it's unified memory the M4 Pro's GPU is working out of the same pool, so after the change <code>ollama ps</code> still reported <code>100% GPU</code> at the larger window. On a 16 GB machine the option isn't there at all.</p>
+
+  <p>What it bought me was time rather than a fix. Moving the ceiling doesn't change the shape of the curve underneath it, and that curve is driven by how many pages a source touches and how many pages the wiki holds, both of which go up every week.</p>
+</section>
+
+<section class="col">
+  <h2>Rethinking it</h2>
+
+  <p>Three quarters of that prompt was material already sitting on disk: the page names the model had needed once on turn 2, the three pages it had finished reading, and the nine pages it had already written and saved. It was carrying all of it for the plain reason that it was doing the whole source in one conversation, and a single conversation can't forget selectively.</p>
+
+  <p>So I split the work into two passes over the source, with a small third step to close it out:</p>
+
+  <ul class="tight">
+    <li><strong>Plan.</strong> Read the source, look at the existing page names, and decide which pages to touch. This stage has no tool that can write, so it couldn't alter the wiki even if the model tried.</li>
+    <li><strong>Execute.</strong> One fresh conversation <em>per planned page</em>, which reads the source, reads that page, writes it, and files it in the index.</li>
+    <li><strong>Log.</strong> A single entry for the whole source, built from a record of what actually landed rather than the model's recollection of a long conversation.</li>
+  </ul>
+
+  <p>Running the second pass once per page is what actually moves the number. A source touching ten pages used to accumulate ten pages worth of context before it finished; now it runs ten small conversations, none of which knows the others exist.</p>
+</section>
+
+<figure class="fig-wide">
+  <div class="fig-frame">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Before, one conversation carries the source, the page list, every page read and every page written. After, a planning conversation hands a short list to one conversation per page, then a log conversation.">
+      <defs>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="currentColor"></path>
+        </marker>
+      </defs>
+
+      <text class="svg-head" x="40" y="28">Before · one conversation, 25 turns</text>
+      <rect x="40" y="42" width="820" height="62" fill="none" stroke="var(--rust)" stroke-width="1.5" rx="3"></rect>
+      <rect x="56"  y="58" width="120" height="30" fill="var(--seg-base)" rx="2"></rect>
+      <text class="svg-small" x="62" y="78" fill="var(--on-seg)">rules</text>
+      <rect x="180" y="58" width="86" height="30" fill="var(--seg-source)" rx="2"></rect>
+      <text class="svg-small" x="186" y="78" fill="var(--on-seg)">source</text>
+      <rect x="270" y="58" width="150" height="30" fill="var(--seg-list)" rx="2"></rect>
+      <text class="svg-small" x="276" y="78" fill="var(--on-seg)">416 names</text>
+      <rect x="424" y="58" width="190" height="30" fill="var(--seg-read)" rx="2"></rect>
+      <text class="svg-small" x="430" y="78" fill="var(--on-seg)">3 pages read</text>
+      <rect x="618" y="58" width="190" height="30" fill="var(--seg-write)" rx="2"></rect>
+      <text class="svg-small" x="624" y="78" fill="var(--on-seg)">9 pages written</text>
+      <text class="svg-tag" x="812" y="78" fill="var(--rust)">27,528</text>
+
+      <text class="svg-head" x="40" y="146">After · three stages, each a fresh conversation</text>
+
+      <rect x="40" y="162" width="180" height="56" fill="none" stroke="var(--sage)" stroke-width="1.5" rx="3"></rect>
+      <text class="svg-label" x="54" y="184">1 · PLAN</text>
+      <text class="svg-small" x="54" y="202">source + 416 names</text>
+      <text class="svg-tag" x="54" y="234" fill="var(--sage)">peak 17,538</text>
+
+      <line x1="222" y1="190" x2="286" y2="190" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"></line>
+      <text class="svg-small" x="228" y="182">~150 tok</text>
+
+      <rect x="292" y="150" width="180" height="50" fill="none" stroke="var(--sky)" stroke-width="1.5" rx="3"></rect>
+      <text class="svg-label" x="306" y="170">2 · EXECUTE</text>
+      <text class="svg-small" x="306" y="188">one page</text>
+      <rect x="300" y="206" width="180" height="50" fill="none" stroke="var(--sky)" stroke-width="1.5" rx="3"></rect>
+      <text class="svg-label" x="314" y="226">2 · EXECUTE</text>
+      <text class="svg-small" x="314" y="244">one page</text>
+      <text class="svg-small" x="492" y="200" fill="var(--slate)">× one per planned page</text>
+      <text class="svg-tag" x="492" y="220" fill="var(--sky)">each 6,894 – 14,004</text>
+
+      <line x1="700" y1="204" x2="756" y2="204" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar2)"></line>
+
+      <rect x="762" y="178" width="98" height="52" fill="none" stroke="var(--lbl-admin)" stroke-width="1.5" rx="3"></rect>
+      <text class="svg-label" x="774" y="198">3 · LOG</text>
+      <text class="svg-tag" x="774" y="218" fill="var(--lbl-admin)">4,267</text>
+    </svg>
+  </div>
+  <figcaption><b>The split.</b> Planning hands forward about 150 tokens, being a list of page names with one line of intent each, and that list is what replaces re-reading the pages themselves.</figcaption>
+</figure>
+
+<section class="col">
+  <h2>The part I nearly broke</h2>
+
+  <p>Two of my own rules depend on the model knowing what its other pages are doing, and isolated conversations take both of them away. The first is that links have to point in both directions, because a new page that nothing links to is reachable only from the index, and for an agent reasoning over the graph that amounts to being invisible. The second is that one idea must not turn into two pages in a single run. I've had to delete <code>model-fusion</code> alongside <code>model-merging</code>, and <code>rag</code> alongside <code>retrieval-augmented-generation</code>, and a few other pairs that said the same thing under different names.</p>
+
+  <p>The fix turned out to be cheap. Every second-pass prompt carries the names of every other page in the batch, which costs about 150 tokens against the 7,490 that reading those pages used to cost. The planning pass also emits link-backs as their own work items, so when a new page needs an inbound link, the page that will provide it becomes a unit of work with an intent line saying exactly that.</p>
+</section>
+
+<section class="col">
+  <h2>What it measured</h2>
+
+  <p>I ran the whole thing end to end against a copy of the real 416-page vault, on one source that the planning pass decided would touch ten pages. That works out to twelve conversations for the pages and the plan, plus one more to write the log entry.</p>
+</section>
+
+<figure class="fig-wide">
+  <div class="fig-frame">
+    <svg viewBox="0 0 900 300" role="img" aria-label="Before, one conversation climbing to 27,528 tokens. After, thirteen conversations, the tallest 17,538 and most under 11,000, plotted on the same scale.">
+      <line x1="60" y1="30" x2="880" y2="30" stroke="var(--rust)" stroke-width="1.2" stroke-dasharray="4 4"></line>
+      <text class="svg-small" x="60" y="24" fill="var(--rust)">32,768</text>
+
+      <text class="svg-head" x="60" y="58">Before · one conversation</text>
+      <text class="svg-head" x="500" y="58">After · 13 conversations</text>
+
+      <line x1="60" y1="260" x2="440" y2="260" stroke="currentColor" stroke-width="1"></line>
+      <polygon points="60,260 60,229.8 75.8,219.7 91.7,180.5 107.5,148.9 123.3,137.2 139.2,127.9 155,113.5 170.8,107.8 186.7,106.3 202.5,104.9 218.3,103.1 234.2,101.7 250,93.8 265.8,83.0 281.7,76.4 297.5,75.9 313.3,71.9 329.2,71.3 345,70.8 360.8,70.1 376.7,69.6 392.5,69.0 408.3,68.4 424.2,67.8 440,66.8 440,260" fill="var(--rust)" opacity="0.14"></polygon>
+      <polyline points="60,229.8 75.8,219.7 91.7,180.5 107.5,148.9 123.3,137.2 139.2,127.9 155,113.5 170.8,107.8 186.7,106.3 202.5,104.9 218.3,103.1 234.2,101.7 250,93.8 265.8,83.0 281.7,76.4 297.5,75.9 313.3,71.9 329.2,71.3 345,70.8 360.8,70.1 376.7,69.6 392.5,69.0 408.3,68.4 424.2,67.8 440,66.8" fill="none" stroke="var(--rust)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+      <circle cx="440" cy="66.8" r="4" fill="var(--rust)"></circle>
+      <text class="svg-tag" x="434" y="58" text-anchor="end" fill="var(--rust)">27,528 · 84%</text>
+
+      <line x1="500" y1="260" x2="880" y2="260" stroke="currentColor" stroke-width="1"></line>
+      <rect x="500" y="136.9" width="22" height="123.1" fill="var(--sage)"></rect>
+      <rect x="529" y="185.9" width="22" height="74.1" fill="var(--sky)"></rect>
+      <rect x="558" y="161.7" width="22" height="98.3" fill="var(--sky)"></rect>
+      <rect x="587" y="193.1" width="22" height="66.9" fill="var(--sky)"></rect>
+      <rect x="616" y="171.8" width="22" height="88.2" fill="var(--sky)"></rect>
+      <rect x="645" y="187.4" width="22" height="72.6" fill="var(--sky)"></rect>
+      <rect x="674" y="198.6" width="22" height="61.4" fill="var(--sky)"></rect>
+      <rect x="703" y="192.2" width="22" height="67.8" fill="var(--sky)"></rect>
+      <rect x="732" y="197.6" width="22" height="62.4" fill="var(--sky)"></rect>
+      <rect x="761" y="167.2" width="22" height="92.8" fill="var(--sky)"></rect>
+      <rect x="790" y="211.6" width="22" height="48.4" fill="var(--sky)"></rect>
+      <rect x="819" y="195.0" width="22" height="65.0" fill="var(--sky)"></rect>
+      <rect x="848" y="230.0" width="22" height="30.0" fill="var(--lbl-admin)"></rect>
+
+      <text class="svg-tag" x="500" y="130" fill="var(--sage)">17,538</text>
+      <text class="svg-small" x="500" y="276" fill="var(--sage)">plan</text>
+      <text class="svg-small" x="600" y="276" fill="var(--sky)">one bar per page</text>
+      <text class="svg-small" x="838" y="276" fill="var(--lbl-admin)">log</text>
+      <text class="svg-tag" x="880" y="130" text-anchor="end" fill="var(--sky)">tallest page: 14,004 · 21%</text>
+    </svg>
+  </div>
+  <figcaption><b>The same work, drawn to the same scale.</b> The left panel climbs because every result stays in the conversation, while the right panel stays flat because each conversation ends before anything can pile up.</figcaption>
+</figure>
+
+<section class="col">
+  <div class="stats">
+    <div class="stat"><span class="v">84% → 27%</span><span class="k">peak window used</span></div>
+    <div class="stat"><span class="v">33 → 0</span><span class="k">context warnings</span></div>
+    <div class="stat"><span class="v">9 → 8</span><span class="k">lint findings, vs baseline</span></div>
+    <div class="stat"><span class="v">286</span><span class="k">tests passing</span></div>
+  </div>
+
+  <p>That's thirteen conversations in total, the tallest being the planning pass at 17,538 tokens and the smallest the log entry at 4,267. None of them crossed 27% of the window, and more to the point none of them climbed, because there's nothing left in them to accumulate.</p>
+
+  <p>The output held up as well as the numbers did. Lint found 7 broken links, which are exactly the same 7 the vault already had, so the run introduced none of its own. Orphan pages went from 2 down to 1, because the link-back rule fired and connected a page that had been sitting there unreferenced.</p>
+</section>
+
+<section class="col">
+  <h2>What it cost</h2>
+
+  <div class="cost">
+    <h3>Four times slower</h3>
+    <p>The old single-pass run got through four sources in 17 minutes. The staged version took 17 minutes and 11 seconds to do <em>one</em> of them.</p>
+    <p>Those thirteen conversations ran between 40 and 150 seconds each, and every one of them re-sends the rules and the source before it can start work, so I'm now paying around 5,700 tokens of setup thirteen times over instead of once.</p>
+  </div>
+
+  <p>Not all of that is the split's doing. The old run was fast partly because it was giving up: five of its replies hit the output cap and were cut off mid-page. Raising that cap to 8,000 tokens is what stopped the truncation, and it's only affordable now because the prompt is small enough to leave room for a reply that size. Under the old design the prompt alone took 84% of the window, which left nowhere to put a longer answer even if I'd wanted one.</p>
+
+  <p>Four times slower is still four times slower, though, and the scheduled job runs on a 45-minute budget. At 17 minutes a source that works out to two sources per run, and I've had days with four of them waiting in the folder.</p>
+</section>
+
+<section class="col">
+  <h2>Where it stands</h2>
+
+  <p>So the context problem is fixed and the wall-clock problem isn't. For now I'd rather have a slow job that files everything than a fast one that silently forgets its own rules, and on the days when two sources are waiting, which is most of them, the run still finishes inside its budget.</p>
+
+  <p>The next thing to hit is the page listing itself. Every run hands the model the name of every page in the wiki, so it can tell a genuinely new concept from one that already has a home, and that works fine at a few hundred pages and won't at a few thousand. There's no need to send the whole catalogue when three entries are what get used, so the answer is probably a search tool rather than a listing.</p>
+</section>
+
+<footer>
+  Measured on one Mac mini, Apple M4 Pro, 48 GB unified memory, running gemma4:26b-mlx via Ollama.<br>
+  Token counts are Ollama's own prompt_eval_count, logged once per turn.<br>
+  Code: github.com/cjdube/ObsidianWikiAgent
+</footer>
+
+</div>
