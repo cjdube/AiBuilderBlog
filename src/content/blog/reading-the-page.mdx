@@ -1,0 +1,129 @@
+---
+title: 'Reading the Page:'
+subtitle: What a Web Fetch Bake-Off Actually Measured
+standfirst: My daily learnings job could only ever see a page's URL, never the page. I paid a scraping service to fix that, then spent five days measuring what actually changed.
+pubDate: 2026-09-02
+tags: ['agents', 'evaluation', 'privacy', 'local-first']
+draft: true
+colophon:
+  - 'Measured on one Mac mini, Apple M4 Pro, 48 GB unified memory. Five weekdays: 2026-08-13, -19, -21, -26 and -27.'
+  - 'Drafting ran on gemini-3.7-flash; page summaries ran locally.'
+  - 'Code: <a href="https://github.com/cjdube/ScribeJay">github.com/cjdube/ScribeJay</a>'
+---
+
+import Callout from '../../components/Callout.astro';
+import Stats from '../../components/Stats.astro';
+
+Every morning a job reads yesterday's Chrome history and writes a learnings entry into my vault. What Chrome gives it is a domain, a page title, and up to six page paths per site. It never sees the page itself, so the model has to work out the topic from the URL and writes whatever the URL will support. One entry read "looked into Gemini API models" when the page I had actually opened was a pricing change.
+
+The fix is to read the pages. I wanted to know whether a hosted scraping service would read them better than my own machine could, so I set up a bake-off with a plan from another session as the starting point and 25 Firecrawl credits on the table.
+
+## Three ways to draft the same day, and a fourth to break a tie
+
+The plan I started with compared today's behaviour against a Firecrawl fetch feeding raw page excerpts into the draft prompt. That changes two things at once, so a win would not say which one won. Splitting them apart gave four setups, run over the same five days:
+
+| Setup | Who fetches | What reached the draft prompt |
+|---|---|---|
+| no fetch | nobody | paths and titles, today's behaviour |
+| local | this Mac | short summaries, written locally |
+| hosted | Firecrawl | short summaries, written locally |
+| hosted, raw | Firecrawl | the page text itself, 8,000 characters |
+
+Local against hosted is the question I actually had, with the same pipeline on both sides. Hosted against hosted-raw asks whether raw excerpts are worth the rule they break, since my own rules file treats fetched page text as untrusted input that never reaches a prompt whose output becomes a file in my vault. Every setup shared one Chrome gather and one fetch per day, so the comparison measures the setups rather than the model's run-to-run variance.
+
+## The picker was the problem
+
+Something has to decide which of yesterday's pages are worth reading. A day of Chrome history is a few hundred URLs and the budget is five, so there is a chooser in front of the fetcher that reads each URL and says yes or no. It is plain Python and a set of rules, with no model call in it, and I call it the picker.
+
+The first version worked by rejection. It threw out anything that looked private and fetched whatever was left. Over five days it spent **10 of its 25 picks on sign-in walls**, including Yahoo Mail, Airbnb, TripIt, the Cloudflare dashboard and a hospital patient portal. Most of the rest were receipts and search forms. The two hosted setups sent all 25 of those URLs to Firecrawl.
+
+The service is not signed in as me, so what came back was login screens rather than anything private. The URLs themselves went out, though, and several of them carried identifiers: an order id, a reservation code, an account id, and a Google SSO token.
+
+> A reject list fails open. The next portal I sign in to is not on it.
+
+So I reversed the rule. A page is now fetched only when its path looks like published writing, which means a headline slug of three or more real words, or a one-word page sitting under a section that publishes and carrying no identifier. Anything the picker cannot classify is skipped. The fetcher also drops the query string before sending anything, keeping the site and the path alone, because the query string is where those ids live and an article renders the same without it. On the same five days the reversed picker chose **24 real articles out of 25**.
+
+The bad picks also invalidated the first run's headline number. Hosted had looked like the better fetcher, 20 pages against local's 12, largely by successfully rendering login screens that were then dropped as too thin to describe.
+
+## The scores could not pick a winner
+
+With the picker fixed I re-ran the three surviving setups and scored them. Then I read the drafts side by side and did not believe the table.
+
+| Setup | bullets | grounded | specific | note chars |
+|---|---|---|---|---|
+| no fetch | 5.2 | 43.3% | 7.3% | 0 |
+| local | 4.6 | 26.7% | 4.0% | 1333 |
+| hosted | 5.2 | 41.7% | 13.3% | 1292 |
+
+"Grounded" counts how often a bolded bullet topic appears word for word in that setup's own source data, which punishes accurate synthesis. A bullet titled "Anthropic Loop Engineering" scores zero because those exact words are nowhere in the page. With five days and about five bullets each, one bullet moves the number 20 points.
+
+The three drafts read almost identically, which was the finding. My own reaction at the time was that I had expected richer insights out of the web fetching and was not seeing them anywhere.
+
+## Tracing one page
+
+So I stopped scoring and walked a single TechCrunch article through all six stages with real data at each one. Four problems fell out of it.
+
+**Firecrawl returned page furniture.** Same page, two fetchers, first 170 characters. Local gave me `This story was originally produced by the New Hampshire Bulletin... Lobsters have long rei`. Firecrawl gave me `[Skip to main content](https://www.nhpr.org/...)[![](https://npr.brightspotcdn.com/dim`. That held on every page I checked, with share bars, newsletter pitches and related-article lists in the markdown. Coursera's page opened with a Labor Day sale banner.
+
+**The truncation ran from the front.** We keep the first 4,000 characters of a fetch, and on a page that opens with a skip link and a share bar that budget goes to the header. The article never arrives inside it.
+
+**TechCrunch handed Firecrawl a bot check.** All 4,000 characters were `Checking your Browser… Verifying… Verification failed`. The summarizer correctly wrote `SKIP`. One credit, zero words.
+
+**Sixty words gives you back the tab title.** Even a clean fetch got compressed 97%, and the prompt asked what the page was *about*. What comes back is "this is a news article about lobsters and climate change", which is what my browser tab already said.
+
+Two limits underneath that were doing more damage than the prompt. The summarizer was only ever shown 3,000 characters of a page while the fetcher was keeping 4,000, so a quarter of every page I had paid for was discarded unread. The day's notes were then truncated at 2,500 characters before the draft prompt saw them at all.
+
+<Callout title="The bug the trace found on the way" tone="ochre">
+  Ars Technica returned HTTP 403 to the local fetcher. The code then asked
+  Firecrawl, which got the page.
+
+  That is routing around a block, and my own rules file forbids it. A refusal
+  now ends that page, with no retry and no second fetcher behind it.
+</Callout>
+
+## After the fix
+
+The summarizer now asks for 3 to 5 sentences of what the page *asserts*, meaning named products, versions, numbers and the actual claim, in up to 120 words. It is told to bail out rather than produce a sentence that would be true of any page on that site. Both limits went up to 4,000 characters.
+
+Re-measured on the same five days, local fetch only, no credits spent:
+
+<Stats
+  items={[
+    { value: '380 → 762', label: 'characters per page note' },
+    { value: '201 → 201', label: 'bullet length, paths only' },
+    { value: '205 → 256', label: 'bullet length, with notes' },
+    { value: '0', label: 'Firecrawl credits' },
+  ]}
+/>
+
+The bullets changed in kind and not only in length. One day's security bullet had read "Analyzed industry threat reporting on how adversarial AI adoption is reshaping enterprise security postures." The same day, after the change, it read "Analyzed CrowdStrike's 2026 Global Threat Report detailing how adversaries weaponize legitimate enterprise AI tools (affecting over 90 organizations), record-setting eCrime breakout speeds, and why securing edge devices must inform AI product risk strategy." ChatGPT's 800 million weekly users showed up. So did the Business Plan gate on ClickUp's custom default views.
+
+## The notes were input only
+
+Reading the new page-notes files, I could see content sitting in them that was never reaching my vault. The notes went into the draft prompt, the model compressed several pages down into one bullet, and the notes themselves were then thrown away. That compression is what makes a bullet say "over 90 organizations", and it is also what loses everything standing around it.
+
+There was already a pattern for keeping the detail. My entries carry a **Videos Liked** section and a **Closed in ClickUp** section, both built in plain Python with no model call, exact text and checked links. **Pages Read** now sits beside them, with one line per page, the title linked to a validated URL, and the summary intact.
+
+Two ordering details took a round to get right. The section is appended after the check that asks whether the model found anything worth logging, because a Pages Read section would answer yes on every day something was fetched, and a day of pure noise would start producing a file. It also needed the off-topic filter to land first, since the draft prompt quietly drops a recipe and a Pages Read section has no judgment at all. Five of sixteen notes on one run were a Patriots signing, a late-night guest host, a WNBA injury report, a pasta recipe and a sitcom-cast interview.
+
+## What the fetchers actually cost
+
+With the pipeline fixed, the original question finally had a clean answer:
+
+| | local | hosted |
+|---|---|---|
+| pages fetched, of 25 | 18 | 22 |
+| usable page notes | 16 | 17 |
+| seconds spent fetching | 17.2 | 90.8 |
+
+Four extra pages and one extra note, for 25 credits and 5.3x the wall clock, on markdown that still carried page furniture. Against my own rule about paid SaaS dependencies for data, that was not close.
+
+The raw-text setup settled as cleanly. Feeding page text straight into the draft prompt produced the least grounded bullets of anything I ran, on all five days, at 17.3% against 41.7% for the same text summarized, while using four times the note budget and 39% more prompt tokens. There is a duller reason it was never going to work either. The local model's context window defaults to 8,192 tokens with 3,072 of those reserved for the reply, and the existing prompt is already around 1,500. Eight thousand characters of raw page text is roughly 2,000 more, and Ollama trims an over-long prompt from the front, which takes the system prompt with it. The draft comes back missing a whole section and nothing anywhere says why.
+
+Both code paths are gone now. The API key setting, the two-fetcher chain, the quota handling and the bake-off harness all came out together, and the fetcher is one function. The numbers are the record of why there is nothing left to configure.
+
+## Where it stands
+
+The feature is on. A page that will not fetch, will not summarize, or trips an exclusion is absent from the day, and the entry falls back to what it would have been with the feature off, so enrichment never fails a morning.
+
+The picker is still the loose end. It admits any three-word headline slug, so a separate list of off-topic sections is doing the relevance work, and that list only knows the categories I have already been burned by. The two lists answer different questions, one about privacy where failing open is unacceptable and one about relevance where failing open costs a fetch and a model call. Only the first of them is finished.
