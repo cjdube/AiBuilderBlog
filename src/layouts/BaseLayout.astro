@@ -54,5 +54,13 @@ const canonicalHref = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
   <body>
     <Nav />
     <slot />
+    {import.meta.env.PROD && (
+      <script
+        is:inline
+        type="module"
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "8bf27097c78f4a569a26b522e25ec0fc"}'
+      ></script>
+    )}
   </body>
 </html>
