@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # wrangler
 .wrangler/
+
+# mirror of .claude/skills, made by the tooling; the skills themselves are
+# committed under .claude/
+.agents/
