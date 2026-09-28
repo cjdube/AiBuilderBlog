@@ -6,7 +6,11 @@ blockquote{border-left:3px solid #ccc;margin-left:0;padding-left:20px;color:#444
 <p>I do most of my building and testing in Opus. It’s the strongest model I have, and it’s also the one that uses up a Pro plan fastest. A lot of what a task needs along the way is searching files, writing docs and filling in boilerplate, and none of that needs the top model. I wanted my plans to decide, up front, which model should do which step.</p>
 <h2>Where the prompt came from</h2>
 <p>I took the prompt from the <strong>Skill of the Day</strong> section of <a href="https://www.theneurondaily.com/p/gpt-6-sol-vs-claude-opus-5-5">an issue of The Neuron</a>, a daily newsletter on AI.</p>
-<pre class="wrap"><code>Plan this task in phases. Prioritize quality, but do not be wasteful. Identify which steps need frontier-level judgment and which can be delegated to cheaper subagents. Write clear acceptance criteria for every delegated step, then review the combined result for correctness, security, and missed requirements.</code></pre>
+<pre>Plan this task in phases. Prioritize quality, but do not be wasteful.
+Identify which steps need frontier-level judgment and which can be
+delegated to cheaper subagents. Write clear acceptance criteria for
+every delegated step, then review the combined result for correctness,
+security, and missed requirements.</pre>
 <p>I took it into Claude Code with two questions. Could it be hooked into plan mode (the Claude Code mode that makes a plan before it changes anything) so I never had to remember to paste it, and could the plan it produced hand different steps to different models?</p>
 <h2>What the skill does</h2>
 <p>The skill is a single Markdown file that Claude loads when it’s needed. It holds the prompt above, plus the rules for turning it into a plan. Claude can hand a step to a helper, which is a separate copy of Claude that runs on a cheaper model. Every step gets one of three models:</p>
@@ -15,112 +19,28 @@ blockquote{border-left:3px solid #ccc;margin-left:0;padding-left:20px;color:#444
 <p>Some easy steps stay with Opus anyway. A helper starts from zero and has to be told everything about the task, and for a small step, that explanation can cost more than doing the work.</p>
 <p>Claude added one rule after reading my settings. I have a setting that sends any helper with no model named to Sonnet, with no message saying so. So the skill makes every step name its model, which means a plan never falls back on that default without me seeing it.</p>
 <p>Every step also follows the same format, and here is the whole skill file:</p>
-<pre><code class="language-markdown">---
-name: phased-plan
-description: Plan a task in phases and assign each step to the cheapest model that can do it well (opus / sonnet / haiku), with acceptance criteria for every delegated step and a final review. Use in plan mode, or when the user asks for a phased plan, a model-tiered plan, or says /phased-plan.
----
-
-# Phased plan
-
-Plan this task in phases. Prioritize quality, but do not be wasteful.
-Identify which steps need frontier-level judgment and which can be
-delegated to cheaper subagents. Write clear acceptance criteria for
-every delegated step, then review the combined result for correctness,
-security, and missed requirements.
-
-## Pick a model for each step
-
-| Tier | Model (`Agent` tool `model:`) | Use for |
-|------|------|------|
-| Frontier | main session (opus) | Architecture, ambiguous requirements, security-sensitive code, tricky debugging, cross-cutting refactors, the final review |
-| Mid | `sonnet` | Well-specified implementation, tests from a clear spec, moderate refactors inside one module |
-| Cheap | `haiku` | Search and locate, file inventories, mechanical edits, renames, boilerplate, summarising logs or docs |
-
-Rules:
-- Default down. Move a step up a tier only when you can say why the cheaper tier would fail.
-- Always write `model:` explicitly. This machine sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`, so an unset model silently becomes sonnet.
-- Keep a step in the main session when handing it off costs more context than doing it.
-- Steps with no shared files may run in parallel. Say so.
-
-## Plan format
-
-```
-## Phase N — &lt;name&gt;
-
-### Step N.M — &lt;what&gt;
-- Model: opus (main) | sonnet | haiku — &lt;one-line reason&gt;
-- Agent type: main | Explore | general-purpose | Plan
-- Input: &lt;files, context the subagent needs; subagents start cold&gt;
-- Output: &lt;exact deliverable&gt;
-- Acceptance criteria:
-  - [ ] &lt;verifiable check: command, test, grep, file exists&gt;
-- Depends on: &lt;step ids&gt; | none (parallel ok)
-```
-
-Every delegated step needs acceptance criteria a checker can verify
-without judgment calls: a test passes, a command exits 0, a grep finds
-or does not find a string.
-
-## Final phase — Review (always opus, main session)
-
-- [ ] Every delegated step met its acceptance criteria (check, do not trust the report)
-- [ ] Correctness: the combined change does what the user asked
-- [ ] Security: input handling, secrets, auth, injection, file permissions
-- [ ] Missed requirements: re-read the original request line by line
-- [ ] Tests and build pass
-
-## Cost note
-
-End the plan with one line: how many steps go to each tier.
-</code></pre>
+<p style="color:#b23">[ IMAGE HERE: code-1.png — code block ]</p>
 <h2>Checking the cheaper models’ work</h2>
 <p>Every step handed to Haiku or Sonnet comes with a list of checks. Each check is something a command can prove, such as a test passing or a search finding a string in a file, so none of them needs a judgment call.</p>
 <p>The last phase always runs in Opus. It re-runs those checks itself instead of trusting what each helper reported, then reviews the combined result for correctness, security and anything the original request asked for that got missed. That’s where Opus is worth what it costs on a plan like this, at the start where the plan gets made and at the end where the work gets checked.</p>
 <h2>Hooking a mode that has no hook</h2>
 <p>Claude Code has hooks, which are small scripts that run at set moments, such as when a session starts or when I send a prompt. Plan mode doesn’t have one of its own. Claude found that every hook is handed a small block of information about the session, and one of the things in it is which mode the session is in.</p>
 <p>So Claude wrote a hook that runs each time I send a prompt. When the session is in plan mode, it adds a note telling Claude to load the skill. In any other mode, it does nothing. Here is the whole script:</p>
-<pre><code class="language-bash">#!/bin/bash
-# UserPromptSubmit: in plan mode, tell Claude to use the phased-plan skill.
-mode=$(jq -r &#39;.permission_mode // empty&#39;)
-[ &quot;$mode&quot; = &quot;plan&quot; ] || exit 0
-jq -n &#39;{hookSpecificOutput: {hookEventName: &quot;UserPromptSubmit&quot;, additionalContext: &quot;Plan mode is on. Load the phased-plan skill (Skill tool, skill: \&quot;phased-plan\&quot;) and write the plan in its format: phases, a model per step (opus/sonnet/haiku), acceptance criteria for every delegated step, and a final opus review for correctness, security, and missed requirements.&quot;}}&#39;
-</code></pre>
+<pre>#!/bin/bash
+# UserPromptSubmit: in plan mode, tell Claude to use the phased-plan
+skill.
+mode=$(jq -r '.permission_mode // empty')
+[ "$mode" = "plan" ] || exit 0
+jq -n '{hookSpecificOutput: {hookEventName: "UserPromptSubmit",
+additionalContext: "Plan mode is on. Load the phased-plan skill (Skill
+tool, skill: \"phased-plan\") and write the plan in its format: phases,
+a model per step (opus/sonnet/haiku), acceptance criteria for every
+delegated step, and a final opus review for correctness, security, and
+missed requirements."}}'</pre>
 <p>The skill and the hook each do one job. The skill holds the instructions, and the hook makes sure it gets used without me asking. Outside plan mode I can still call it by typing <code>/phased-plan</code>.</p>
 <h2>An example plan</h2>
 <p>The full plans run long, so this is part of a real one. The task was adding PDF uploads to a chat assistant I’m building, which could only take CSV files before. Three of its five steps are below, trimmed, along with the line that closes every plan:</p>
-<pre><code class="language-text">Phase 1 — Build
-
-Step 1.1 — Backend: pypdf + imports.py + toolset
-* Model: opus (main) — parses untrusted binary input and changes model-facing
-  wording; context is already loaded, handoff costs more than doing it.
-* Agent type: main
-* Depends on: none
-
-Step 1.2 — Backend tests
-* Model: sonnet — tests from a clear spec, one module.
-* Agent type: general-purpose
-* Acceptance criteria:
-   * [...]
-   * Temporarily reverting the `.pdf` branch in `save_import` makes the new
-     upload test fail (proves the test bites).
-* Depends on: 1.1
-
-[...]
-
-Step 1.4 — Docs
-* Model: haiku — mechanical wording edits.
-* Agent type: general-purpose
-* Output: CSV-only wording becomes CSV-or-PDF; docs/imports.md gains a short
-  &quot;PDFs&quot; section.
-* Acceptance criteria:
-   * `grep -il pdf docs/imports.md README.md ANALYSIS.md` lists all three.
-   * `grep -n &quot;scanned&quot; docs/imports.md` finds the rejection note.
-* Depends on: 1.1
-
-[...]
-
-Cost: opus 2 steps + review, sonnet 2, haiku 1.
-</code></pre>
+<p style="color:#b23">[ IMAGE HERE: code-2.png — code block ]</p>
 <p>Opus kept the first step because it reads files that users upload, and it already had the code open. The test step going to Sonnet has to prove its own tests can fail, by switching the new feature off and watching a test break. The step I cut was the frontend work, on Sonnet. After it came a test run with the real assistant and the final review, both in Opus.</p>
 <h2>How it’s worked</h2>
 <p>I’ve used it on a number of plans now. Haiku usually picks up the document writing, Sonnet does the coding, and Opus handles the orchestration and the testing. That’s the split I was after when I started. On a Pro plan, I want Opus spending its time on the planning and the checking, not on the docs. I didn’t measure my usage before and after, so I can’t tell you how much it saves, only that the cheap work has stopped landing on the expensive model.</p>

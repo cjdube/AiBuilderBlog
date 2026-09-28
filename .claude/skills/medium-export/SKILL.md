@@ -1,6 +1,6 @@
 ---
 name: medium-export
-description: Export a published blog post from this repo into a Medium-ready bundle — the text, plus PNGs of every table, stat strip and chart, plus the import checklist. Use when asked to cross-post, republish, or put a post on Medium.
+description: Export a published blog post from this repo into a Medium-ready bundle — the text, plus PNGs of every table, stat strip and chart, and of code blocks too wide for Medium, plus the import checklist. Use when asked to cross-post, republish, or put a post on Medium.
 ---
 
 # Export a post to Medium
@@ -25,7 +25,7 @@ The bundle lands in `medium/<slug>/`:
 | `README.md` | The steps to follow in Medium, and the title/subtitle fields |
 | `POST.md` | The post as markdown, for reference |
 | `PASTE.html` | Fallback: open, select all, copy, paste into Medium |
-| `*.png` | One per table, stat strip and chart |
+| `*.png` | One per table, stat strip and chart, plus any code block with more than three lines over 72 characters. Other code blocks stay text, with long lines wrapped at word breaks. |
 
 Image sizes are set by `SHOT` at the top of the script. Tables and stat strips
 are drawn narrow, near the 700px Medium lays an image out at, so Medium barely
@@ -54,7 +54,7 @@ Do not publish, post, or sign in to Medium. The user does that part.
 
 ## When the post has a block the script does not know
 
-`medium/export.mjs` handles `<table>`, `<div class="stats">`, `<svg>`,
+`medium/export.mjs` handles `<table>`, `<pre>`, `<div class="stats">`, `<svg>`,
 `<figure>`, callouts, blockquotes, lists and headings. A new component in
 `src/components/` needs a new branch in the block loop, next to the existing
 ones. Render it to a PNG if Medium cannot show it, otherwise map it to

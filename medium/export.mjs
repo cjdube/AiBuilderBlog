@@ -148,6 +148,7 @@ article.post { display: block; max-width: none; }
 article.post > :first-child { margin-top: 0; }
 article.post > :last-child { margin-bottom: 0; }
 table { width: 100%; min-width: 0; }
+pre { white-space: pre-wrap; overflow-x: visible; }
 svg { display: block; width: ${width}px; height: auto; color: var(--ink); }
 </style></head>
 <body><article class="post">${body}</article></body></html>`;
@@ -192,13 +193,42 @@ async function trim({ raw, name, kind }) {
   return `${name}.png`;
 }
 
+// --- code blocks -----------------------------------------------------------
+
+const CODE_WIDTH = 72;
+const MAX_LONG_LINES = 3;
+
+// Returns the block with its long lines wrapped, or null when it has too many
+// long lines, or a word too long to break, to wrap safely.
+function wrapCode(code) {
+  const lines = code.split('\n');
+  if (lines.filter((l) => l.length > CODE_WIDTH).length > MAX_LONG_LINES) return null;
+  const out = [];
+  for (const line of lines) {
+    if (line.length <= CODE_WIDTH) { out.push(line); continue; }
+    const indent = line.match(/^\s*/)[0];
+    let row = '';
+    for (const word of line.trim().split(/\s+/)) {
+      if (indent.length + word.length > CODE_WIDTH) return null;
+      if (row && (indent + row + ' ' + word).length > CODE_WIDTH) {
+        out.push(indent + row);
+        row = word;
+      } else {
+        row = row ? row + ' ' + word : word;
+      }
+    }
+    out.push(indent + row);
+  }
+  return out.join('\n');
+}
+
 // --- walk the blocks -------------------------------------------------------
 
 const md = [];
 const paste = [];
 const shots = [];
 const images = [];
-let nTable = 0, nStats = 0, nFig = 0;
+let nTable = 0, nStats = 0, nFig = 0, nCode = 0;
 
 function imageStub(file, note) {
   images.push({ file, note });
@@ -272,8 +302,22 @@ for (const block of blocks) {
     // The fence must be longer than any backtick run inside, or a code block
     // that quotes markdown closes early.
     const fence = '`'.repeat(Math.max(3, ...(code.match(/`+/g) || []).map((r) => r.length + 1)));
-    md.push(fence + '\n' + code.replace(/\n+$/, '') + '\n' + fence);
-    paste.push(src);
+    // Medium's code box never wraps, so a line wider than about 72 characters
+    // scrolls sideways. A block with only a few long lines, such as a pasted
+    // prompt, is wrapped at word breaks and stays real, copyable text. A block
+    // with many long lines is code or a file, where a new line could change what
+    // it means, so it is drawn as a PNG that wraps instead.
+    const wrapped = wrapCode(code.replace(/\n+$/, ''));
+    if (wrapped) {
+      md.push(fence + '\n' + wrapped + '\n' + fence);
+      paste.push(`<pre>${wrapped.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</pre>`);
+    } else {
+      const name = `code-${++nCode}`;
+      shots.push(shoot(src, name, 'table'));
+      imageStub(`${name}.png`, 'code block');
+      md.push('<!-- code as text, if you skip the image\n'
+        + fence + '\n' + code.replace(/\n+$/, '') + '\n' + fence + '\n-->');
+    }
     continue;
   }
 

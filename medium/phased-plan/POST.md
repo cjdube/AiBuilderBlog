@@ -11,7 +11,11 @@ I do most of my building and testing in Opus. It’s the strongest model I have,
 I took the prompt from the **Skill of the Day** section of [an issue of The Neuron](https://www.theneurondaily.com/p/gpt-6-sol-vs-claude-opus-5-5), a daily newsletter on AI.
 
 ```
-Plan this task in phases. Prioritize quality, but do not be wasteful. Identify which steps need frontier-level judgment and which can be delegated to cheaper subagents. Write clear acceptance criteria for every delegated step, then review the combined result for correctness, security, and missed requirements.
+Plan this task in phases. Prioritize quality, but do not be wasteful.
+Identify which steps need frontier-level judgment and which can be
+delegated to cheaper subagents. Write clear acceptance criteria for
+every delegated step, then review the combined result for correctness,
+security, and missed requirements.
 ```
 
 I took it into Claude Code with two questions. Could it be hooked into plan mode (the Claude Code mode that makes a plan before it changes anything) so I never had to remember to paste it, and could the plan it produced hand different steps to different models?
@@ -39,6 +43,11 @@ Claude added one rule after reading my settings. I have a setting that sends any
 
 Every step also follows the same format, and here is the whole skill file:
 
+![code block](code-1.png)
+
+*[IMAGE: code-1.png — code block]*
+
+<!-- code as text, if you skip the image
 ````
 ---
 name: phased-plan
@@ -98,6 +107,7 @@ or does not find a string.
 
 End the plan with one line: how many steps go to each tier.
 ````
+-->
 
 ## Checking the cheaper models’ work
 
@@ -113,10 +123,16 @@ So Claude wrote a hook that runs each time I send a prompt. When the session is 
 
 ```
 #!/bin/bash
-# UserPromptSubmit: in plan mode, tell Claude to use the phased-plan skill.
+# UserPromptSubmit: in plan mode, tell Claude to use the phased-plan
+skill.
 mode=$(jq -r '.permission_mode // empty')
 [ "$mode" = "plan" ] || exit 0
-jq -n '{hookSpecificOutput: {hookEventName: "UserPromptSubmit", additionalContext: "Plan mode is on. Load the phased-plan skill (Skill tool, skill: \"phased-plan\") and write the plan in its format: phases, a model per step (opus/sonnet/haiku), acceptance criteria for every delegated step, and a final opus review for correctness, security, and missed requirements."}}'
+jq -n '{hookSpecificOutput: {hookEventName: "UserPromptSubmit",
+additionalContext: "Plan mode is on. Load the phased-plan skill (Skill
+tool, skill: \"phased-plan\") and write the plan in its format: phases,
+a model per step (opus/sonnet/haiku), acceptance criteria for every
+delegated step, and a final opus review for correctness, security, and
+missed requirements."}}'
 ```
 
 The skill and the hook each do one job. The skill holds the instructions, and the hook makes sure it gets used without me asking. Outside plan mode I can still call it by typing `/phased-plan`.
@@ -125,6 +141,11 @@ The skill and the hook each do one job. The skill holds the instructions, and th
 
 The full plans run long, so this is part of a real one. The task was adding PDF uploads to a chat assistant I’m building, which could only take CSV files before. Three of its five steps are below, trimmed, along with the line that closes every plan:
 
+![code block](code-2.png)
+
+*[IMAGE: code-2.png — code block]*
+
+<!-- code as text, if you skip the image
 ```
 Phase 1 — Build
 
@@ -159,6 +180,7 @@ Step 1.4 — Docs
 
 Cost: opus 2 steps + review, sonnet 2, haiku 1.
 ```
+-->
 
 Opus kept the first step because it reads files that users upload, and it already had the code open. The test step going to Sonnet has to prove its own tests can fail, by switching the new feature off and watching a test break. The step I cut was the frontend work, on Sonnet. After it came a test run with the real assistant and the final review, both in Opus.
 

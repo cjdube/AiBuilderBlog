@@ -22,6 +22,8 @@ Source: https://blog.craigdube.dev/blog/phased-plan/
 ## Fix these after the import
 
 1. **table-1.png** — Model / Gets
+2. **code-1.png** — code block
+3. **code-2.png** — code block
 
 ## If the import tool fails
 
@@ -35,6 +37,6 @@ elsewhere" → https://blog.craigdube.dev/blog/phased-plan/
 - `POST.md` — the post as plain markdown, for reference. Tables and stat
   strips are also kept in it as HTML comments, in case you want them as text.
 - `PASTE.html` — the fallback described above.
-- `table-1.png`
+- `table-1.png`, `code-1.png`, `code-2.png`
 
 Rebuild this bundle with `npm run build && node medium/export.mjs phased-plan`.
