@@ -1,35 +1,37 @@
----
-title: 'Opus Plans, Haiku Writes the Docs:'
-subtitle: A Planning Skill That Picks the Model for Every Step
-standfirst: I'm on Claude's $20 Pro plan, so I'm always looking for ways to get more work out of it without paying more. The phased plan skill makes every plan say which model does each step, and it runs by itself whenever I'm in plan mode.
-pubDate: 2026-09-28
-tags: ['claude-code', 'agents', 'planning']
-draft: false
-colophon:
-  - 'Built in Claude Code on Claude Opus 5.5, on a Claude Pro plan.'
----
+# Opus Plans, Haiku Writes the Docs
 
-I do most of my building and testing in Opus. It's the strongest model I have, and it's also the one that uses up a Pro plan fastest. A lot of what a task needs along the way is searching files, writing docs and filling in boilerplate, and none of that needs the top model. I wanted my plans to decide, up front, which model should do which step.
+## A Planning Skill That Picks the Model for Every Step
+
+*Originally published at https://blog.craigdube.dev/blog/phased-plan/*
+
+I do most of my building and testing in Opus. It’s the strongest model I have, and it’s also the one that uses up a Pro plan fastest. A lot of what a task needs along the way is searching files, writing docs and filling in boilerplate, and none of that needs the top model. I wanted my plans to decide, up front, which model should do which step.
 
 ## Where the prompt came from
 
 I took the prompt from the **Skill of the Day** section of [an issue of The Neuron](https://www.theneurondaily.com/p/gpt-6-sol-vs-claude-opus-5-5), a daily newsletter on AI.
 
-<pre class="wrap"><code>Plan this task in phases. Prioritize quality, but do not be wasteful. Identify which steps need frontier-level judgment and which can be delegated to cheaper subagents. Write clear acceptance criteria for every delegated step, then review the combined result for correctness, security, and missed requirements.</code></pre>
+```
+Plan this task in phases. Prioritize quality, but do not be wasteful. Identify which steps need frontier-level judgment and which can be delegated to cheaper subagents. Write clear acceptance criteria for every delegated step, then review the combined result for correctness, security, and missed requirements.
+```
 
 I took it into Claude Code with two questions. Could it be hooked into plan mode (the Claude Code mode that makes a plan before it changes anything) so I never had to remember to paste it, and could the plan it produced hand different steps to different models?
 
 ## What the skill does
 
-The skill is a single Markdown file that Claude loads when it's needed. It holds the prompt above, plus the rules for turning it into a plan. Claude can hand a step to a helper, which is a separate copy of Claude that runs on a cheaper model. Every step gets one of three models:
+The skill is a single Markdown file that Claude loads when it’s needed. It holds the prompt above, plus the rules for turning it into a plan. Claude can hand a step to a helper, which is a separate copy of Claude that runs on a cheaper model. Every step gets one of three models:
 
-| Model | Gets |
-|---|---|
-| Opus (the model I'm talking to) | Architecture, unclear requirements, security-sensitive code, hard debugging and the final review |
-| Sonnet | Clear coding work, tests written from a spec, refactors inside one module |
-| Haiku | Searching and finding things, file lists, simple edits, renames, boilerplate, summaries |
+![Model / Gets](table-1.png)
 
-The main rule is to **start with the cheapest model**. Every step starts on Haiku, and it only moves up to Sonnet or Opus when the plan gives a reason Haiku can't do it.
+*[IMAGE: table-1.png — Model / Gets]*
+
+<!-- table as text
+Model | Gets
+Opus (the model I’m talking to) | Architecture, unclear requirements, security-sensitive code, hard debugging and the final review
+Sonnet | Clear coding work, tests written from a spec, refactors inside one module
+Haiku | Searching and finding things, file lists, simple edits, renames, boilerplate, summaries
+-->
+
+The main rule is to **start with the cheapest model**. Every step starts on Haiku, and it only moves up to Sonnet or Opus when the plan gives a reason Haiku can’t do it.
 
 Some easy steps stay with Opus anyway. A helper starts from zero and has to be told everything about the task, and for a small step, that explanation can cost more than doing the work.
 
@@ -37,7 +39,7 @@ Claude added one rule after reading my settings. I have a setting that sends any
 
 Every step also follows the same format, and here is the whole skill file:
 
-````markdown
+````
 ---
 name: phased-plan
 description: Plan a task in phases and assign each step to the cheapest model that can do it well (opus / sonnet / haiku), with acceptance criteria for every delegated step and a final review. Use in plan mode, or when the user asks for a phased plan, a model-tiered plan, or says /phased-plan.
@@ -97,19 +99,19 @@ or does not find a string.
 End the plan with one line: how many steps go to each tier.
 ````
 
-## Checking the cheaper models' work
+## Checking the cheaper models’ work
 
 Every step handed to Haiku or Sonnet comes with a list of checks. Each check is something a command can prove, such as a test passing or a search finding a string in a file, so none of them needs a judgment call.
 
-The last phase always runs in Opus. It re-runs those checks itself instead of trusting what each helper reported, then reviews the combined result for correctness, security and anything the original request asked for that got missed. That's where Opus is worth what it costs on a plan like this, at the start where the plan gets made and at the end where the work gets checked.
+The last phase always runs in Opus. It re-runs those checks itself instead of trusting what each helper reported, then reviews the combined result for correctness, security and anything the original request asked for that got missed. That’s where Opus is worth what it costs on a plan like this, at the start where the plan gets made and at the end where the work gets checked.
 
 ## Hooking a mode that has no hook
 
-Claude Code has hooks, which are small scripts that run at set moments, such as when a session starts or when I send a prompt. Plan mode doesn't have one of its own. Claude found that every hook is handed a small block of information about the session, and one of the things in it is which mode the session is in.
+Claude Code has hooks, which are small scripts that run at set moments, such as when a session starts or when I send a prompt. Plan mode doesn’t have one of its own. Claude found that every hook is handed a small block of information about the session, and one of the things in it is which mode the session is in.
 
 So Claude wrote a hook that runs each time I send a prompt. When the session is in plan mode, it adds a note telling Claude to load the skill. In any other mode, it does nothing. Here is the whole script:
 
-```bash
+```
 #!/bin/bash
 # UserPromptSubmit: in plan mode, tell Claude to use the phased-plan skill.
 mode=$(jq -r '.permission_mode // empty')
@@ -121,9 +123,9 @@ The skill and the hook each do one job. The skill holds the instructions, and th
 
 ## An example plan
 
-The full plans run long, so this is part of a real one. The task was adding PDF uploads to a chat assistant I'm building, which could only take CSV files before. Three of its five steps are below, trimmed, along with the line that closes every plan:
+The full plans run long, so this is part of a real one. The task was adding PDF uploads to a chat assistant I’m building, which could only take CSV files before. Three of its five steps are below, trimmed, along with the line that closes every plan:
 
-```text
+```
 Phase 1 — Build
 
 Step 1.1 — Backend: pypdf + imports.py + toolset
@@ -160,6 +162,6 @@ Cost: opus 2 steps + review, sonnet 2, haiku 1.
 
 Opus kept the first step because it reads files that users upload, and it already had the code open. The test step going to Sonnet has to prove its own tests can fail, by switching the new feature off and watching a test break. The step I cut was the frontend work, on Sonnet. After it came a test run with the real assistant and the final review, both in Opus.
 
-## How it's worked
+## How it’s worked
 
-I've used it on a number of plans now. Haiku usually picks up the document writing, Sonnet does the coding, and Opus handles the orchestration and the testing. That's the split I was after when I started. On a Pro plan, I want Opus spending its time on the planning and the checking, not on the docs. I didn't measure my usage before and after, so I can't tell you how much it saves, only that the cheap work has stopped landing on the expensive model.
+I’ve used it on a number of plans now. Haiku usually picks up the document writing, Sonnet does the coding, and Opus handles the orchestration and the testing. That’s the split I was after when I started. On a Pro plan, I want Opus spending its time on the planning and the checking, not on the docs. I didn’t measure my usage before and after, so I can’t tell you how much it saves, only that the cheap work has stopped landing on the expensive model.

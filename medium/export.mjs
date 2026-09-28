@@ -263,6 +263,20 @@ for (const block of blocks) {
     continue;
   }
 
+  if (block.tag === 'pre') {
+    // Code keeps its line breaks, so it cannot go through inline().
+    const code = src.replace(/<[^>]+>/g, '')
+      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+      .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
+      .replace(/&[a-z]+;/gi, (e) => ENTITIES[e] ?? e);
+    // The fence must be longer than any backtick run inside, or a code block
+    // that quotes markdown closes early.
+    const fence = '`'.repeat(Math.max(3, ...(code.match(/`+/g) || []).map((r) => r.length + 1)));
+    md.push(fence + '\n' + code.replace(/\n+$/, '') + '\n' + fence);
+    paste.push(src);
+    continue;
+  }
+
   if (/^h[234]$/.test(block.tag)) {
     md.push('#'.repeat(Number(block.tag[1])) + ' ' + text);
     paste.push(`<h${block.tag[1]}>${text}</h${block.tag[1]}>`);
