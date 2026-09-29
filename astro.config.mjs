@@ -7,7 +7,7 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://blog.craigdube.dev',
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/admin/') })],
   markdown: {
     // The design paints <pre> from the palette in global.css. Shiki would
     // inline its own background and colours and override that.

@@ -1,17 +1,38 @@
 {
-  // Static-site Worker: no server script, just the built files in dist/.
-  // Cloudflare runs `npm run build` and then `npx wrangler deploy`, which
-  // reads this file to know what to upload.
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "craigdube-dev",
-  "compatibility_date": "2026-08-21",
-  // The blog is served from blog.craigdube.dev via a Workers Route. Turning
-  // these off keeps that the only public address, so search engines don't see
-  // the same posts at two URLs.
-  "workers_dev": false,
-  "preview_urls": false,
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "404-page"
-  }
+	// Static site plus one small script. Cloudflare runs `npm run build` and
+	// then `npx wrangler deploy`, which reads this file to know what to upload.
+	// The script in worker/ answers /api/* only (reader comments); every other
+	// request goes straight to the built files in dist/.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "craigdube-dev",
+	"main": "worker/index.js",
+	"compatibility_date": "2026-08-21",
+	// The blog is served from blog.craigdube.dev via a Workers Route. Turning
+	// these off keeps that the only public address, so search engines don't see
+	// the same posts at two URLs.
+	"workers_dev": false,
+	"preview_urls": false,
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"not_found_handling": "404-page",
+		"run_worker_first": [
+			"/api/*"
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "blog-comments",
+			"database_id": "5b527acc-bb30-49f2-93c2-6f957b72e236",
+			"migrations_dir": "migrations"
+		}
+	],
+	"vars": {
+		// From Zero Trust → Access → the "Blog admin" app. If either is empty
+		// the admin API refuses everyone.
+		"ACCESS_TEAM_DOMAIN": "shy-sound-2eea.cloudflareaccess.com",
+		"ACCESS_AUD": "a30676fe970a0e686bff7b512d2447bec719ab5a52934ef3e03f4547016a9a9a"
+	}
+	// Secret, set with `npx wrangler secret put TURNSTILE_SECRET`.
 }

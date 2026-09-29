@@ -29,3 +29,6 @@ pnpm-debug.log*
 # mirror of .claude/skills, made by the tooling; the skills themselves are
 # committed under .claude/
 .agents/
+
+# local Worker secrets for `wrangler dev`
+.dev.vars

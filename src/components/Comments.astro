@@ -1,0 +1,145 @@
+---
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<section class="comments" data-slug={slug}>
+  <h2>Comments</h2>
+  <div class="comment-list" aria-live="polite"></div>
+
+  <form class="comment-form">
+    <label>Name
+      <input type="text" name="name" maxlength="60" required autocomplete="name" />
+    </label>
+    <label>Comment
+      <textarea name="body" maxlength="2000" rows="5" required></textarea>
+    </label>
+    <div class="turnstile-slot"></div>
+    <button type="submit">Send</button>
+    <p class="comment-status" role="status"></p>
+  </form>
+</section>
+
+<script>
+  // Public site key for the "blog comments" Turnstile widget. The matching
+  // secret lives only in the Worker (TURNSTILE_SECRET).
+  const TURNSTILE_SITE_KEY = '0x4AAAAAAFI0cWuihrPx9r6A';
+  const TEST_SITE_KEY = '1x00000000000000000000AA';
+
+  const section = document.querySelector<HTMLElement>('section.comments')!;
+  const slug = section.dataset.slug!;
+  const list = section.querySelector<HTMLElement>('.comment-list')!;
+  const form = section.querySelector<HTMLFormElement>('.comment-form')!;
+  const slot = section.querySelector<HTMLElement>('.turnstile-slot')!;
+  const button = form.querySelector<HTMLButtonElement>('button')!;
+  const status = form.querySelector<HTMLElement>('.comment-status')!;
+
+  const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+  const sitekey = isLocal ? TEST_SITE_KEY : TURNSTILE_SITE_KEY;
+
+  let widgetId: string | undefined;
+
+  // Explicit rendering: the site key is chosen here, after the script loads.
+  const ts = document.createElement('script');
+  ts.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  ts.async = true;
+  ts.defer = true;
+  ts.onload = () => {
+    const turnstile = (window as any).turnstile;
+    const el = document.createElement('div');
+    el.className = 'cf-turnstile';
+    slot.appendChild(el);
+    widgetId = turnstile.render(el, { sitekey });
+  };
+  document.head.appendChild(ts);
+
+  function resetWidget() {
+    const turnstile = (window as any).turnstile;
+    if (turnstile && widgetId !== undefined) turnstile.reset(widgetId);
+  }
+
+  function setStatus(text: string, kind: 'ok' | 'error' | '') {
+    status.textContent = text;
+    status.className = 'comment-status' + (kind ? ' ' + kind : '');
+  }
+
+  function renderComment(c: { name: string; body: string; created_at: string }) {
+    const item = document.createElement('div');
+    item.className = 'comment';
+
+    const meta = document.createElement('p');
+    meta.className = 'comment-meta';
+    const name = document.createElement('span');
+    name.className = 'comment-name';
+    name.textContent = c.name;
+    const date = document.createElement('time');
+    date.className = 'comment-date';
+    date.dateTime = c.created_at;
+    date.textContent = new Date(c.created_at).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+    });
+    meta.append(name, ' · ', date);
+
+    const body = document.createElement('p');
+    body.className = 'comment-body';
+    body.textContent = c.body;
+
+    item.append(meta, body);
+    return item;
+  }
+
+  async function loadComments() {
+    try {
+      const res = await fetch('/api/comments?post=' + encodeURIComponent(slug));
+      if (!res.ok) throw new Error(String(res.status));
+      const comments = await res.json();
+      list.replaceChildren();
+      if (!comments.length) {
+        const empty = document.createElement('p');
+        empty.className = 'comment-empty';
+        empty.textContent = 'No comments yet.';
+        list.appendChild(empty);
+        return;
+      }
+      for (const c of comments) list.appendChild(renderComment(c));
+    } catch {
+      list.replaceChildren();
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    button.disabled = true;
+    setStatus('', '');
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          post: slug,
+          name: data.get('name'),
+          body: data.get('body'),
+          token: data.get('cf-turnstile-response'),
+        }),
+      });
+      if (res.ok) {
+        form.reset();
+        setStatus('Thanks. Your comment shows after I review it.', 'ok');
+      } else {
+        const out = await res.json().catch(() => ({}));
+        setStatus(out.error || 'Something went wrong. Please try again.', 'error');
+      }
+    } catch {
+      setStatus('Could not send. Please try again.', 'error');
+    } finally {
+      button.disabled = false;
+      resetWidget();
+    }
+  });
+
+  loadComments();
+</script>

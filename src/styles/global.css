@@ -303,6 +303,38 @@ footer.colophon {
 }
 footer.colophon a { color: var(--slate); }
 
+/* --- comments ------------------------------------------------------------ */
+
+section.comments { max-width: 66ch; width: 100%; margin: 3rem auto; }
+.comment { border-top: 1px solid var(--hairline); padding: 1rem 0; }
+.comment-meta {
+  font-family: "IBM Plex Mono", monospace; font-size: 0.78rem;
+  letter-spacing: 0.04em; margin: 0 0 0.4rem; color: var(--slate);
+}
+.comment-name { color: var(--ink); }
+.comment-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.comment-empty { color: var(--slate); }
+.comment-form { margin-top: 1.5rem; display: grid; gap: 1rem; }
+.comment-form label {
+  display: grid; gap: 0.3rem; font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem; letter-spacing: 0.04em; color: var(--slate);
+}
+.comment-form input, .comment-form textarea {
+  width: 100%; box-sizing: border-box; font: inherit; color: var(--ink);
+  background: var(--panel); border: 1px solid var(--hairline);
+  border-radius: 2px; padding: 0.55rem 0.7rem;
+}
+.comment-form textarea { resize: vertical; }
+.comment-form button {
+  justify-self: start; font: inherit; color: var(--ink); background: transparent;
+  border: 1px solid var(--ink); border-radius: 2px; padding: 0.5rem 1.2rem; cursor: pointer;
+}
+.comment-form button:hover:not(:disabled) { color: var(--ochre); border-color: var(--ochre); }
+.comment-form button:disabled { opacity: 0.5; cursor: default; }
+.comment-status { margin: 0; min-height: 1.2em; }
+.comment-status.ok { color: var(--sage); }
+.comment-status.error { color: var(--rust); }
+
 /* --- site nav ------------------------------------------------------------ */
 
 nav.site {

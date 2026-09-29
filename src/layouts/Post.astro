@@ -1,12 +1,14 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import Comments from '../components/Comments.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
   post: CollectionEntry<'blog'>['data'];
+  slug: string;
 }
 
-const { post } = Astro.props;
+const { post, slug } = Astro.props;
 const {
   title, subtitle, standfirst, pubDate, author,
   canonicalUrl, dropCap, colophon,
@@ -44,6 +46,8 @@ const dateLabel = pubDate.toLocaleDateString('en-US', {
     <article class:list={['post', dropCap && 'has-lede']}>
       <slot />
     </article>
+
+    <Comments slug={slug} />
 
     <footer class="colophon">
       {colophon?.map((line: string) => <Fragment set:html={line + '<br>'} />)}
