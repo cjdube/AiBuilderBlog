@@ -32,3 +32,6 @@ pnpm-debug.log*
 
 # local Worker secrets for `wrangler dev`
 .dev.vars
+
+# Personal one-sheet with contact details; keep out of the public repo
+one-sheeter/
