@@ -1,16 +1,16 @@
 ---
 const path = Astro.url.pathname;
 const links = [
-  { href: '/', label: 'Writing' },
+  { href: '/work-with-me/', label: 'Work with me' },
+  { href: '/blog/', label: 'Writing' },
   { href: '/about/', label: 'About' },
   { href: '/rss.xml', label: 'RSS' },
 ];
-const isCurrent = (href: string) =>
-  href === '/' ? path === '/' : path.startsWith(href);
+const isCurrent = (href: string) => path.startsWith(href);
 ---
 
 <nav class="site">
-  <a class="brand" href="/">A Builder&rsquo;s Odyssey</a>
+  <a class="brand" href="/">Craig Dub&eacute;</a>
   <ul>
     {links.map(({ href, label }) => (
       <li>

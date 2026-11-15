@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Craig Dube, Fractional Product Leader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  /* Palette from craigdube.dev. Print is always the light palette. */
+  :root {
+    --paper: #ECEFEA;
+    --panel: #F6F8F4;
+    --ink: #16232E;
+    --slate: #5C6B76;
+    --hairline: #CBD3CC;
+    --ochre: #9A6B14;
+    --ochre-soft: #E8DBB8;
+    --sky: #33607F;
+  }
+  @page { size: letter; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #DADFD8; }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 9pt;
+    line-height: 1.4;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .sheet {
+    width: 8.5in;
+    height: 11in;
+    margin: 24px auto;
+    padding: 0.55in 0.5in 0.36in;
+    background: var(--panel);
+    box-shadow: 0 2px 14px rgba(0,0,0,.12);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  @media print {
+    html, body { background: var(--panel); }
+    .sheet { margin: 0; box-shadow: none; height: 10.98in; }
+  }
+  @media screen and (max-width: 860px) {
+    .sheet { width: auto; height: auto; margin: 0; padding: 24px 16px; }
+    .cols { grid-template-columns: 1fr !important; }
+  }
+
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 18px; }
+  h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-weight: 600;
+    font-size: 30pt;
+    line-height: 1;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .role {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 8.4pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ochre);
+  }
+  .intro { font-size: 9.8pt; line-height: 1.45; margin: 16px 0 0; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; flex: 1; }
+  h2 {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sky);
+    margin: 10px 0 5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .cols > div > h2:first-child { margin-top: 0; }
+  p { margin: 0 0 6px; }
+  ul { margin: 0 0 6px; padding-left: 14px; }
+  li { margin: 0 0 5px; }
+  li::marker { color: var(--slate); }
+  strong { font-weight: 600; }
+  .win { margin: 0 0 7px; }
+  .win .who {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 7.6pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--slate);
+    display: block;
+  }
+  blockquote {
+    margin: 6px 0 4px;
+    padding: 6px 10px;
+    background: var(--ochre-soft);
+    border-left: 3px solid var(--ochre);
+    font-family: Newsreader, Georgia, serif;
+    font-size: 9.5pt;
+    line-height: 1.3;
+  }
+  blockquote cite {
+    display: block;
+    margin-top: 4px;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-style: normal;
+    font-size: 8pt;
+    color: var(--slate);
+  }
+  .offer { margin: 0 0 6px; }
+  .offer b { display: block; }
+
+  footer {
+    margin-top: 0;
+    padding-top: 9px;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cta { font-family: Newsreader, Georgia, serif; font-weight: 600; font-size: 14pt; }
+  .contact { font-size: 9pt; }
+  .contact a { color: var(--ink); text-decoration: none; }
+  .llc { width: 100%; font-size: 7.4pt; color: var(--slate); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <h1>Craig Dube</h1>
+    <div class="role">Fractional product leader for small software companies</div>
+    <p class="intro">I've spent 35 years in software, from developer to Senior Director of Product Management at impact.com and Meltwater. I now work with a few small software companies at a time, one or two days a week, as the product leader you aren't ready to hire full time. Founders call me when the backlog keeps growing, when they're still the product manager themselves, when they want a straight answer on AI, or when they're buying a company and need to know if its product fits.</p>
+  </header>
+
+  <div class="cols">
+    <div>
+      <h2>What I do</h2>
+      <ul>
+        <li><strong>Roadmap and priorities.</strong> I turn the goals in the founder's head into a 12 to 18 month roadmap, broken into sprints the engineers can work from.</li>
+        <li><strong>Customer-first decisions.</strong> I use Jobs To Be Done. I start from the outcome the customer wants and work back to the feature.</li>
+        <li><strong>Product manager mentorship.</strong> I've hired and coached product managers for years, including several who came from engineering or had never owned a product.</li>
+        <li><strong>AI I've used myself.</strong> At impact.com I used AI to review proposed projects. I still build with Claude Code, including my own AI agent, Wren, so I can talk with your engineers in their own terms.</li>
+      </ul>
+
+      <h2>How I work</h2>
+      <ul>
+        <li>I meet each person on the team weekly, and I don't micromanage.</li>
+        <li>I take the time to learn how your product is built, so I can weigh the tradeoffs with your engineers.</li>
+        <li>I raise problems with leaders early, including the hard conversations.</li>
+        <li>If a full-time product leader would serve you better, I'll tell you and help you hire one.</li>
+      </ul>
+
+      <h2>Week one</h2>
+      <p>I meet the founders and the team and read what's already written down. At the end of the week you get a short readout naming the three biggest problems and what I'd do about them in the first 30 days.</p>
+
+      <h2>Who I work with</h2>
+      <p>Software companies of 50 people or fewer. My most recent work is in affiliate/partner marketing and media intelligence.</p>
+    </div>
+
+    <div>
+      <h2>Track record</h2>
+      <div class="win">
+        <span class="who">impact.com · Technical product management</span>
+        As Senior Director of Technical Product Management, I led the teams that built the foundation of the impact.com platform: tracking, contracting, campaign management and reporting.
+      </div>
+      <div class="win">
+        <span class="who">impact.com · Product due diligence</span>
+        I was part of a small technical task force doing product due diligence on impact.com's acquisition of SaaSquatch in 2023. I assessed product fit and wrote the 18-month integration plan.
+      </div>
+      <div class="win">
+        <span class="who">Meltwater · Head of Product, Universal Solutions Center of Excellence</span>
+        I built and coached a global team of six product managers. Some had never been product owners and became the examples other Meltwater teams pointed to.
+      </div>
+      <div class="win">
+        <span class="who">AARP NH · Speakers Bureau Coordinator · Volunteer</span>
+        I rewrote and automated the process in Microsoft 365, and the daily update went from 2 hours down to 15 minutes.
+      </div>
+      <blockquote>
+        "As a leader, he is willing to speak out when he feels something could be improved or changed. He always has the individual, the business and the product in mind. He is a strong partner with engineering and is always wanting to learn more."
+        <cite>Cailin Litke, Senior Product Strategist, York IE</cite>
+      </blockquote>
+
+      <h2>Ways to work together</h2>
+      <div class="offer"><b>Advisory, about 1 day a week</b>Roadmap and priority reviews, plus coaching for whoever owns product today.</div>
+      <div class="offer"><b>Fractional product lead, about 2 days a week</b>I own the roadmap and run the product team day to day. It fits a company that has stalled or is still hiring a permanent product leader.</div>
+      <div class="offer"><b>Fixed-scope projects</b>Product due diligence before you buy or partner, with an integration plan. Or the week-one readout on its own, yours to keep.</div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="cta">Let's talk for 20 minutes.</div>
+    <div class="contact">
+      <a href="mailto:craigdubenh@gmail.com">craigdubenh@gmail.com</a> ·
+      <a href="https://www.linkedin.com/in/craigdube">linkedin.com/in/craigdube</a> ·
+      <a href="https://craigdube.dev">craigdube.dev</a> · Newfields, NH
+    </div>
+    <div class="llc">VibeFoundry Tech Advisory LLC</div>
+  </footer>
+
+</div>
+</body>
+</html>

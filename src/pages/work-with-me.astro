@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Offers from '../components/Offers.astro';
+import SiteFoot from '../components/SiteFoot.astro';
+---
+
+<BaseLayout
+  title="Work with me — Craig Dubé"
+  description="Fractional product leadership for software companies of 50 people or fewer: advisory, fractional product lead, and fixed-scope due diligence."
+>
+  <div class="wrap">
+    <header class="masthead">
+      <p class="eyebrow">VibeFoundry Tech Advisory LLC</p>
+      <h1>Founders call me when&hellip;</h1>
+      <hr class="rule" />
+    </header>
+
+    <div class="two-col">
+      <div>
+        <ul class="tight">
+          <li>the backlog keeps growing and nothing ships faster,</li>
+          <li>they&rsquo;re still the product manager themselves,</li>
+          <li>they want a straight answer on AI, from someone who builds with it,</li>
+          <li>they&rsquo;re buying a company and need to know if its product fits.</li>
+        </ul>
+
+        <h2>What I do</h2>
+        <p><strong>Roadmap and priorities.</strong> I turn the goals in the founder&rsquo;s head into a 12 to 18 month roadmap, broken into sprints the engineers can work from.</p>
+        <p><strong>Customer-first decisions.</strong> I use Jobs To Be Done. I start from the outcome the customer wants and work back to the feature.</p>
+        <p><strong>Product manager mentorship.</strong> I&rsquo;ve hired and coached product managers for years, including several who came from engineering or had never owned a product.</p>
+        <p><strong>AI I&rsquo;ve used myself.</strong> At impact.com I used AI to review proposed projects. I still build with Claude Code, including my own AI agent, Wren, so I can talk with your engineers in their own terms.</p>
+
+        <h2>Week one</h2>
+        <p>I meet the founders and the team and read what&rsquo;s already written down. At the end of the week you get a short readout naming the three biggest problems and what I&rsquo;d do about them in the first 30 days.</p>
+
+        <h2>How I work</h2>
+        <ul class="tight">
+          <li>I meet each person on the team weekly, and I don&rsquo;t micromanage.</li>
+          <li>I take the time to learn how your product is built, so I can weigh the tradeoffs with your engineers.</li>
+          <li>I raise problems with leaders early, including the hard conversations.</li>
+          <li>If a full-time product leader would serve you better, I&rsquo;ll tell you and help you hire one.</li>
+        </ul>
+      </div>
+
+      <div>
+        <blockquote class="pull">
+          &ldquo;He always has the individual, the business and the product in
+          mind. He is a strong partner with engineering and is always wanting
+          to learn more.&rdquo;
+        </blockquote>
+        <p class="byline">Cailin Litke, Senior Product Strategist, York IE</p>
+
+        <section class="ledger" aria-labelledby="who">
+          <h2 class="ledger-head" id="who"><span>Who I work with</span></h2>
+          <p>Software companies of 50 people or fewer. My most recent work is in affiliate and partner marketing, and media intelligence.</p>
+        </section>
+
+        <section class="ledger" aria-labelledby="sheet">
+          <h2 class="ledger-head" id="sheet"><span>The one-sheet</span><span>1 page</span></h2>
+          <ul>
+            <li><a href="/one-sheet/"><span><b>Read it on the web</b><span class="job">Everything on this page, on one sheet</span></span></a></li>
+            <li><a href="/craig-dube-one-sheet.pdf"><span><b>Download the PDF</b><span class="job">To forward to a co-founder</span></span><span class="status oss">PDF</span></a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="band" aria-labelledby="ways">
+      <h2 class="band-head" id="ways">Three ways to start</h2>
+      <Offers />
+    </section>
+
+    <section class="band" id="talk" aria-labelledby="talk-head">
+      <h2 class="band-head" id="talk-head">Let&rsquo;s talk for 20 minutes</h2>
+      <p>
+        Email me at <a href="mailto:craigdubenh@gmail.com">craigdubenh@gmail.com</a>
+        or message me on <a href="https://www.linkedin.com/in/craigdube">LinkedIn</a>.
+        Tell me a little about your company and what&rsquo;s stuck.
+      </p>
+    </section>
+
+    <SiteFoot />
+  </div>
+</BaseLayout>

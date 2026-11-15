@@ -35,3 +35,6 @@ pnpm-debug.log*
 
 # Personal one-sheet with contact details; keep out of the public repo
 one-sheeter/
+
+# Site plan and mockups (business notes); keep out of the public repo
+planning/
