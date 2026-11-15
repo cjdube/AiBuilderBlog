@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://blog.craigdube.dev',
+  site: 'https://craigdube.dev',
   integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/admin/') })],
   markdown: {
     // The design paints <pre> from the palette in global.css. Shiki would

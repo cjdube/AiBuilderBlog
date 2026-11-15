@@ -7,8 +7,10 @@
 	"name": "craigdube-dev",
 	"main": "worker/index.js",
 	"compatibility_date": "2026-08-21",
-	// The blog is served from blog.craigdube.dev via a Workers Route. Turning
-	// these off keeps that the only public address, so search engines don't see
+	// The site is served from craigdube.dev (a Custom Domain on this Worker,
+	// set in the dashboard). blog.craigdube.dev keeps its Workers Route only so
+	// a Cloudflare Redirect Rule can 301 it to craigdube.dev. Turning these off
+	// keeps craigdube.dev the only public address, so search engines don't see
 	// the same posts at two URLs.
 	"workers_dev": false,
 	"preview_urls": false,

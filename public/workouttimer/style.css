@@ -1,0 +1,391 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap');
+
+:root {
+  /* HSL Color System */
+  --bg-dark: hsl(224, 71%, 4%);
+  --bg-dark-accent: hsl(224, 71%, 6%);
+  
+  /* State Accents: Ready/Paused (Violet), Work (Coral/Orange), Rest (Emerald) */
+  --accent-ready-start: hsl(262, 83%, 64%);
+  --accent-ready-end: hsl(245, 80%, 60%);
+  --accent-work-start: hsl(14, 100%, 63%);
+  --accent-work-end: hsl(35, 100%, 55%);
+  --accent-rest-start: hsl(150, 80%, 48%);
+  --accent-rest-end: hsl(165, 80%, 40%);
+  
+  /* Glassmorphism Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-focus: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.4);
+  
+  /* Typography Tokens */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Dynamic Active Accents (Modified dynamically by JS state machine) */
+  --active-start: var(--accent-ready-start);
+  --active-end: var(--accent-ready-end);
+  --active-shadow: rgba(130, 80, 223, 0.3);
+  
+  --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.2s ease;
+}
+
+/* Base resets & adjustments for iOS Safari */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent; /* Disable flash tap on iOS */
+  user-select: none; /* Prevent text selection during workouts */
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(93, 88, 223, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 110, 80, 0.08) 0%, transparent 40%);
+  background-attachment: fixed;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 1.5rem calc(2rem + env(safe-area-inset-bottom)) 1.5rem; /* iOS viewport safe areas */
+  overflow: hidden;
+}
+
+/* Header UI */
+header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  z-index: 10;
+}
+
+header h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #ffffff 40%, rgba(255, 255, 255, 0.7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+header p {
+  font-size: clamp(0.85rem, 3vw, 1rem);
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Main glass timer card */
+.timer-container {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); /* Webkit/Safari blur support */
+  border: 1px solid var(--glass-border);
+  border-radius: 32px;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 1.1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-shadow: 0 24px 64px var(--glass-shadow);
+  z-index: 5;
+  transition: var(--transition-smooth);
+}
+
+.timer-container::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 32px;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--active-start), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: var(--transition-smooth);
+}
+
+/* Circular Visual Progress Display */
+.progress-ring-container {
+  position: relative;
+  width: clamp(200px, 60vw, 290px);
+  height: clamp(200px, 60vw, 290px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* Start progress at the top */
+}
+
+.progress-ring__circle {
+  transition: stroke-dashoffset 0.1s linear, stroke 0.5s ease;
+  stroke-linecap: round;
+}
+
+.progress-ring__bg {
+  stroke: rgba(255, 255, 255, 0.03);
+}
+
+/* Display text within the progress ring */
+.timer-display {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.time-left {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(4.5rem, 15vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums; /* Prevents shifting during countdown */
+  text-shadow: 0 0 30px var(--active-shadow);
+  transition: var(--transition-smooth);
+}
+
+.timer-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #ffffff;
+  margin-top: -0.5rem;
+  opacity: 0.9;
+  transition: var(--transition-smooth);
+}
+
+/* Quick Status indicators (Next Phase / Total sets) */
+.timer-stats {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-val {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Timer Control Buttons styling */
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 420px;
+  gap: 1rem;
+  margin-top: 2rem;
+  z-index: 10;
+}
+
+.main-controls {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.btn {
+  border: none;
+  outline: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--transition-fast);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  height: 58px;
+}
+
+.btn-primary {
+  flex: 2;
+  background: linear-gradient(135deg, var(--active-start), var(--active-end));
+  color: #ffffff;
+  font-size: 1.1rem;
+  box-shadow: 0 12px 30px var(--active-shadow);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 6px 15px var(--active-shadow);
+  filter: brightness(0.95);
+}
+
+.btn-secondary {
+  flex: 1;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+  background: var(--glass-bg-hover);
+}
+
+/* Secondary controls (Audio state toggles / Screen lock status) */
+.sub-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+  background: var(--glass-bg-hover);
+}
+
+.icon-btn.active {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: var(--transition-fast);
+}
+
+/* Dynamic Wake Lock Badge */
+.wakelock-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.35rem 0.75rem;
+  border-radius: 100px;
+  align-self: center;
+  transition: var(--transition-fast);
+}
+
+.wakelock-badge.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.wakelock-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.wakelock-badge.active .wakelock-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+/* Presets panel */
+.presets-panel {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.preset-chip {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.preset-chip.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
+/* Animations for subtle visual pop */
+@keyframes pulse-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse-pulse 0.4s ease-out;
+}
