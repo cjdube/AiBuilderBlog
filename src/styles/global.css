@@ -114,6 +114,15 @@ header.masthead {
   display: flex; flex-direction: column; gap: 1.1rem;
 }
 
+.masthead-row { display: flex; align-items: center; gap: 2rem; }
+.masthead-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.1rem; }
+/* The source image has parchment corners; clip to its round frame. */
+.emblem { flex: none; width: 200px; height: 200px; clip-path: circle(48.5%); }
+@media (max-width: 640px) {
+  .masthead-row { flex-direction: column-reverse; align-items: flex-start; gap: 1.25rem; }
+  .emblem { width: 120px; height: 120px; }
+}
+
 .eyebrow {
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
@@ -366,6 +375,15 @@ nav.site a:hover, nav.site a[aria-current="page"] { color: var(--ochre); }
 .postlist .date {
   font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate);
+}
+.postlist.thumbs a { flex-direction: row; align-items: center; gap: 1.5rem; }
+.postlist .post-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.postlist .thumb { flex: none; width: 160px; height: 110px; object-fit: cover; border-radius: 2px; }
+.postlist .thumb.is-emblem { width: 110px; margin: 0 25px; clip-path: circle(48.5%); }
+@media (max-width: 640px) {
+  .postlist.thumbs a { gap: 1rem; }
+  .postlist .thumb { width: 88px; height: 64px; }
+  .postlist .thumb.is-emblem { width: 64px; margin: 0 12px; }
 }
 .postlist .dek { color: var(--slate); font-family: Newsreader, Georgia, serif; font-size: 1.1rem; line-height: 1.45; text-wrap: pretty; }
 

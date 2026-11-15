@@ -3,8 +3,10 @@ import { glob } from 'astro/loaders';
 
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/blog' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
+    /** Thumbnail on the blog list. Posts without one show the Odyssey emblem. */
+    cover: image().optional(),
     /** Second line of the headline, shown in ochre under the title. */
     subtitle: z.string().optional(),
     /** The standfirst — one or two sentences under the headline. */

@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import emblem from '../../assets/odyssey-emblem.webp';
 
 const posts = (
   await getCollection('blog', ({ data }) =>
@@ -20,23 +22,37 @@ const fmt = (d: Date) =>
 >
   <div class="wrap">
     <header class="masthead">
-      <p class="eyebrow">Craig Dubé</p>
-      <h1>A Builder&rsquo;s Odyssey</h1>
-      <p class="standfirst">
-        Notes from building local AI agents on one Mac mini. What I built, the
-        trade-offs I made, and what the numbers actually said.
-      </p>
+      <div class="masthead-row">
+        <div class="masthead-text">
+          <p class="eyebrow">Craig Dubé</p>
+          <h1>A Builder&rsquo;s Odyssey</h1>
+          <p class="standfirst">
+            Notes from building local AI agents on one Mac mini. What I built, the
+            trade-offs I made, and what the numbers actually said.
+          </p>
+        </div>
+        <Image class="emblem" src={emblem} alt="An ancient Greek galley under sail at sunset, in a round emblem" widths={[200, 400]} sizes="200px" loading="eager" />
+      </div>
       <hr class="rule" />
     </header>
 
     <section class="col">
-      <ul class="postlist">
+      <ul class="postlist thumbs">
         {posts.map((post) => (
           <li>
             <a href={`/blog/${post.id}/`}>
-              <span class="date">{fmt(post.data.pubDate)}</span>
-              <h2>{[post.data.title, post.data.subtitle].filter(Boolean).join(' ')}</h2>
-              <span class="dek">{post.data.standfirst}</span>
+              <span class="post-text">
+                <span class="date">{fmt(post.data.pubDate)}</span>
+                <h2>{[post.data.title, post.data.subtitle].filter(Boolean).join(' ')}</h2>
+                <span class="dek">{post.data.standfirst}</span>
+              </span>
+              <Image
+                class:list={['thumb', !post.data.cover && 'is-emblem']}
+                src={post.data.cover ?? emblem}
+                alt=""
+                widths={[200, 400]}
+                sizes="160px"
+              />
             </a>
           </li>
         ))}
