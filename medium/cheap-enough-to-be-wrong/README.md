@@ -1,6 +1,6 @@
 # Medium bundle: cheap-enough-to-be-wrong
 
-Source: https://blog.craigdube.dev/blog/cheap-enough-to-be-wrong/
+Source: https://craigdube.dev/blog/cheap-enough-to-be-wrong/
 
 ## The three fields Medium asks for
 
@@ -11,7 +11,7 @@ Source: https://blog.craigdube.dev/blog/cheap-enough-to-be-wrong/
 
 ## The route that keeps your SEO
 
-1. Go to https://medium.com/p/import and paste https://blog.craigdube.dev/blog/cheap-enough-to-be-wrong/
+1. Go to https://medium.com/p/import and paste https://craigdube.dev/blog/cheap-enough-to-be-wrong/
 2. Medium pulls the text, backdates it, and sets the canonical link back to
    your blog for you. Do not skip this step and paste instead, or your blog
    loses the search credit for its own post.
@@ -31,7 +31,7 @@ Source: https://blog.craigdube.dev/blog/cheap-enough-to-be-wrong/
 Open `PASTE.html` in a browser, select all, copy, and paste into a new Medium
 draft. Rich text survives; markdown does not. Then set the canonical link by
 hand: More settings → Advanced settings → "This story was originally published
-elsewhere" → https://blog.craigdube.dev/blog/cheap-enough-to-be-wrong/
+elsewhere" → https://craigdube.dev/blog/cheap-enough-to-be-wrong/
 
 ## Files
 

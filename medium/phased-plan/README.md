@@ -1,6 +1,6 @@
 # Medium bundle: phased-plan
 
-Source: https://blog.craigdube.dev/blog/phased-plan/
+Source: https://craigdube.dev/blog/phased-plan/
 
 ## The three fields Medium asks for
 
@@ -11,7 +11,7 @@ Source: https://blog.craigdube.dev/blog/phased-plan/
 
 ## The route that keeps your SEO
 
-1. Go to https://medium.com/p/import and paste https://blog.craigdube.dev/blog/phased-plan/
+1. Go to https://medium.com/p/import and paste https://craigdube.dev/blog/phased-plan/
 2. Medium pulls the text, backdates it, and sets the canonical link back to
    your blog for you. Do not skip this step and paste instead, or your blog
    loses the search credit for its own post.
@@ -30,7 +30,7 @@ Source: https://blog.craigdube.dev/blog/phased-plan/
 Open `PASTE.html` in a browser, select all, copy, and paste into a new Medium
 draft. Rich text survives; markdown does not. Then set the canonical link by
 hand: More settings → Advanced settings → "This story was originally published
-elsewhere" → https://blog.craigdube.dev/blog/phased-plan/
+elsewhere" → https://craigdube.dev/blog/phased-plan/
 
 ## Files
 
