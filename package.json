@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "medium": "astro build && node medium/export.mjs"
+    "medium": "astro build && node medium/export.mjs",
+    "one-sheet": "node scripts/one-sheet.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.7",
