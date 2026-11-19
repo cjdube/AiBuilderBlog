@@ -94,6 +94,8 @@ body {
 
 .wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 2.75rem; }
 .col  { max-width: 66ch; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.1rem; }
+/* The Writing index is a list, not prose: let it span the nav's width. */
+.masthead.wide, .col.wide { max-width: 1000px; }
 
 /* The article body. MDX emits a flat stream of elements, so a three-column
    grid does the job the artifact's <section class="col"> wrappers did: prose
