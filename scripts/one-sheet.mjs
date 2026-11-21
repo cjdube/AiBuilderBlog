@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 const chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const src = resolve('public/one-sheet/index.html');
 const localHtml = resolve('one-sheeter/craig-dube-one-sheet-C.html');
-const email = '<a href="mailto:craigdubenh@gmail.com">craigdubenh@gmail.com</a> ·';
+const email = '<a href="mailto:craig@vibefoundrytech.com">craig@vibefoundrytech.com</a> ·';
 
 const phone = readFileSync('one-sheeter/phone.txt', 'utf8').trim();
 const html = readFileSync(src, 'utf8');
